@@ -165,3 +165,6 @@
 
 /* The arrow in a tile's product count is text, not an icon chip. */
 .cat-tile .count i { width: auto; height: auto; display: inline; background: none; border: 0; margin: 0; font-size: inherit; color: inherit; }
+
+/* The new pages call the green message "success"; FairCart named it "ok". */
+.alert-fc--success { background: var(--leaf-wash); color: var(--leaf-dark); border-color: #C9DAF6; }
