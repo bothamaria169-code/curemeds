@@ -46,7 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         JWTHandler::setToken($user);
         session_regenerate_id(true);
         $home = $user['role'] === 'admin' ? 'dashboards/admin/index.php' : 'dashboards/customer/index.php';
-        redirect(safe_local_path($redirect, $home));
+        $target = safe_local_path($redirect, $home);
+        // Staff who followed a "Patient portal" link still belong in the admin.
+        if ($user['role'] === 'admin' && str_starts_with($target, 'dashboards/customer/')) {
+            $target = $home;
+        }
+        redirect($target);
     }
 }
 

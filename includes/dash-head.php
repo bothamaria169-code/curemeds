@@ -109,6 +109,9 @@ $page_title = $page_title ?? ucfirst($dash_role) . ' dashboard — ' . SITE_NAME
     <?php endforeach; ?>
 
     <div class="dash-side__label">Session</div>
+    <?php if ($dash_role !== 'admin' && $user['role'] === 'admin'): ?>
+    <a href="<?= SITE_URL ?>/dashboards/admin/index.php" style="color:var(--leaf-light);font-weight:700"><i class="fa-solid fa-gauge-high"></i>Admin dashboard</a>
+    <?php endif; ?>
     <?php if ($dash_role !== 'admin'): ?>
     <a href="<?= e(wa_link('Hi CureMeds, I need help with my health tracker.')) ?>" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i>WhatsApp us</a>
     <?php endif; ?>
