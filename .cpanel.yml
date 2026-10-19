@@ -1,0 +1,13 @@
+# cPanel → Git™ Version Control → Manage → "Deploy HEAD Commit" runs these steps.
+# The repository is cloned to /home/USER/repositories/curemeds and copied into
+# public_html. config/secrets.php and uploads/ are never touched, because they
+# are not in the repository — upload secrets.php once with File Manager.
+#
+# If your cPanel username is not "curemedsco", change it on the next line.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/curemedsco/public_html/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R assets classes config dashboards database includes lib modules scripts $DEPLOYPATH
+    - /bin/cp *.php .htaccess robots.txt $DEPLOYPATH
+    - /bin/mkdir -p ${DEPLOYPATH}uploads/products

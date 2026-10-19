@@ -1,0 +1,54 @@
+# Deploys every push to main straight to the live server over FTP.
+#
+# Switch it on once: GitHub → this repository → Settings → Secrets and variables
+# → Actions → New repository secret, and add
+#   FTP_SERVER    e.g. ftp.curemeds.co.za
+#   FTP_USERNAME  a cPanel FTP account whose folder is public_html
+#   FTP_PASSWORD  that account's password
+# Until FTP_SERVER exists the workflow skips itself, so pushing is always safe.
+name: Deploy to curemeds.co.za
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+    steps:
+      - name: Check deploy secrets
+        if: env.FTP_SERVER == ''
+        run: echo "::notice::FTP secrets are not set yet, so nothing was deployed. See the setup checklist in the admin."
+
+      - uses: actions/checkout@v4
+        if: env.FTP_SERVER != ''
+
+      - name: PHP syntax check
+        if: env.FTP_SERVER != ''
+        run: find . -name '*.php' -not -path './lib/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Upload changed files
+        if: env.FTP_SERVER != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            .cpanel.yml
+            README.md
+            DEPLOY.md
+            config/secrets.php
+            uploads/**

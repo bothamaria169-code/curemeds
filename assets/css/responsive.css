@@ -1,0 +1,110 @@
+/* ============================================================================
+   CureMeds — responsive + print
+   Breakpoints match Bootstrap's so utility classes stay predictable.
+   ============================================================================ */
+
+@media (max-width: 1199.98px) {
+  .hero__grid  { gap: 2rem; }
+  .mega__cats  { grid-template-columns: repeat(3, 1fr); }
+  .shop-layout { grid-template-columns: 230px 1fr; gap: 1.4rem; }
+}
+
+@media (max-width: 991.98px) {
+  :root { --header-h: 64px; }
+
+  .header-search  { display: none; }
+  .desktop-nav    { display: none; }
+  .hero__grid     { grid-template-columns: 1fr; }
+  .hero__art      { display: none; }
+  .hero__stats    { gap: 1.5rem; }
+  .trust__grid    { grid-template-columns: repeat(2, 1fr); gap: 1.1rem; }
+  .pdp            { grid-template-columns: 1fr; gap: 2rem; }
+  .pdp-gallery    { position: static; }
+  .cart-layout,
+  .checkout-layout{ grid-template-columns: 1fr; }
+  .summary        { position: static; }
+  .footer-grid    { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .tier-grid      { grid-template-columns: repeat(2, 1fr); }
+  .auth-shell     { grid-template-columns: 1fr; }
+  .auth-aside     { display: none; }
+
+  /* Filters collapse into a slide-over on tablet and below. */
+  .shop-layout { grid-template-columns: 1fr; }
+  .filters {
+    position: fixed; inset: 0 auto 0 0; width: min(320px, 88vw); z-index: 1200;
+    background: var(--card); padding: 1.2rem; overflow-y: auto; box-shadow: var(--e-3);
+    transform: translateX(-100%); transition: transform .32s cubic-bezier(.4,0,.2,1);
+  }
+  .filters.is-open { transform: none; }
+  .filters__close { display: inline-flex !important; }
+
+  /* Dashboards: sidebar becomes a drawer. */
+  .dash { grid-template-columns: 1fr; }
+  .dash-side {
+    position: fixed; inset: 0 auto 0 0; width: min(270px, 86vw); z-index: 1200;
+    transform: translateX(-100%); transition: transform .32s cubic-bezier(.4,0,.2,1);
+  }
+  .dash-side.is-open { transform: none; }
+  .dash-burger { display: inline-flex !important; }
+
+  .tabbar { display: flex; }
+  body.has-tabbar { padding-bottom: 62px; }
+  .wa-float  { bottom: 76px; }
+  .chat-fab  { bottom: 140px; }
+  .chat-panel{ bottom: 72px; height: min(500px, calc(100vh - 150px)); }
+  .compare-bar { bottom: 76px; }
+}
+
+@media (max-width: 767.98px) {
+  body { font-size: 14.5px; }
+
+  .grid-products  { grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: .85rem; }
+  .p-card__body   { padding: .8rem .8rem .4rem; }
+  .p-card__margin { margin: .5rem -.8rem -.4rem; padding: .5rem .8rem; font-size: .72rem; }
+  .p-card__foot   { padding: .7rem .8rem .85rem; }
+  .p-card__name   { font-size: .9rem; }
+  .p-card__tools  { opacity: 1; transform: none; }
+
+  .footer-grid   { grid-template-columns: 1fr; gap: 1.8rem; }
+  .margin-grid,
+  .calc-out      { grid-template-columns: 1fr; }
+  .cart-line     { grid-template-columns: 72px 1fr; }
+  .cart-line__img{ width: 72px; height: 72px; }
+  .cart-line__right { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
+  .stat-grid     { grid-template-columns: 1fr 1fr; }
+  .stat          { padding: .95rem; }
+  .stat b        { font-size: 1.3rem; }
+  .announce .container { font-size: .72rem; }
+  .section       { padding: 2.4rem 0; }
+  .dash-main     { padding: 1.2rem 1rem 2.5rem; }
+  .table-fc th, .table-fc td { padding: .7rem .75rem; }
+}
+
+@media (max-width: 479.98px) {
+  .trust__grid  { grid-template-columns: 1fr; }
+  .tier-grid    { grid-template-columns: 1fr; }
+  .stat-grid    { grid-template-columns: 1fr; }
+  .grid-products{ grid-template-columns: repeat(2, 1fr); }
+  .hero__cta .btn-fc { width: 100%; }
+}
+
+/* Hidden until a breakpoint asks for them */
+.filters__close, .dash-burger { display: none; }
+
+/* ── Print: the price list is meant to be printed and carried ───────────── */
+@media print {
+  .announce, .site-header, .site-footer, .tabbar, .wa-float,
+  .chat-fab, .chat-panel, .compare-bar, .no-print, .toast-wrap { display: none !important; }
+
+  body { background: #fff; font-size: 11pt; }
+  .page-head { background: #fff !important; color: #000 !important; padding: 0 0 1rem; border-bottom: 2px solid #000; }
+  .page-head h1, .page-head p { color: #000 !important; }
+  .page-head::after { display: none; }
+  .container { max-width: none; padding: 0; }
+  .card-fc, .table-wrap { box-shadow: none !important; border-color: #999 !important; break-inside: avoid; }
+  .table-fc th { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pricelist-brand-head { background: #222 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; break-after: avoid; }
+  a[href]::after { content: ''; }
+  .print-only { display: block !important; }
+}
+.print-only { display: none; }

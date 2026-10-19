@@ -1,0 +1,25 @@
+# ── Never in GitHub (this repository is public) ──────────────────────────
+config/secrets.php
+ADMIN-LOGIN.txt
+*.env
+.env*
+
+# Uploaded files live on the server, not in git
+uploads/*
+!uploads/products/
+uploads/products/*
+!uploads/products/.gitkeep
+
+# Local tooling and logs
+.claude/
+*.log
+error_log
+.DS_Store
+Thumbs.db
+
+# The original 2 MB artwork — the site uses assets/img/stock/shieldwell.jpg
+ShieldWell HIV Pharmacy Display.png
+GlucoBalance Diabetes Care Display.png
+# Concept mock-ups marked "not for real use" — kept off the site
+02.jpg
+ub1lsdub1lsdub1l.jpg

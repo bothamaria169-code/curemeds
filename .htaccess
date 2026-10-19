@@ -1,0 +1,52 @@
+# ── CureMeds ────────────────────────────────────────────────────────────────
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Pretty URLs for the two files crawlers look for by convention.
+  RewriteRule ^sitemap\.xml$ sitemap.php?xml=1 [L]
+  RewriteRule ^rss\.xml$     feed.php [L]
+</IfModule>
+
+# ── Security headers ────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+  # HSTS is commented out until the live certificate is confirmed working —
+  # switching it on before then can lock visitors out of the site.
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ── Never serve source or data files ────────────────────────────────────────
+<FilesMatch "\.(sql|md|log|ini|sh|bak|json|lock|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+
+# Config and class sources are includes, never entry points. scripts/cron.php
+# is the one exception: a URL cron calls it, and it refuses anyone without the key.
+RedirectMatch 404 ^/(config|classes|database|lib|includes|source-screenshots)/.*$
+RedirectMatch 404 ^/scripts/(?!cron\.php$).*$
+# Git and deploy files, in case the repository folder is ever served directly.
+RedirectMatch 404 /\.(git|github|cpanel\.yml|gitignore|claude)(/.*)?$
+
+# ── Caching for static assets ───────────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css            "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/jpeg          "access plus 6 months"
+  ExpiresByType image/png           "access plus 6 months"
+  ExpiresByType image/webp          "access plus 6 months"
+  ExpiresByType image/svg+xml       "access plus 6 months"
+  ExpiresByType font/woff2          "access plus 1 year"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json application/rss+xml image/svg+xml
+</IfModule>
+
+ErrorDocument 404 /404.php

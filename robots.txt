@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Nothing behind a login, and nothing that is one person's private view.
+Disallow: /dashboards/
+Disallow: /modules/auth/
+Disallow: /modules/api/
+Disallow: /uploads/proof-of-payments/
+Disallow: /uploads/reseller-docs/
+Disallow: /checkout.php
+Disallow: /cart.php
+Disallow: /invoice.php
+Disallow: /order-confirmation.php
+Disallow: /compare.php
+Disallow: /source-screenshots/
+
+Sitemap: https://faircart.co.za/sitemap.xml

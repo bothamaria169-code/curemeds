@@ -1,0 +1,170 @@
+/* ============================================================================
+   CureMeds — design tokens
+   Every colour, radius, shadow and type decision lives here as a custom
+   property. Components consume var(--x), never a raw hex, so the whole brand
+   re-skins from this one file.
+   ============================================================================ */
+:root {
+  /* Ink — the structural dark. Navy rather than black so it sits warm next to
+     the leaf green instead of fighting it. */
+  --ink:        #0A1B3D;
+  --ink-2:      #12284F;
+  --ink-3:      #1C3563;
+  --ink-soft:   #3A4D72;
+
+  /* Leaf — the primary. Wellness, growth, go. */
+  --leaf:       #1557D0;
+  --leaf-dark:  #0E40A0;
+  --leaf-light: #1BB3C8;
+  --leaf-wash:  #E8F0FC;
+
+  /* Amber — money. Reserved for price, margin and profit. Never decorative. */
+  --amber:      #E9A21B;
+  --amber-dark: #C4820C;
+  --amber-wash: #FDF3DF;
+
+  /* Coral — sale, urgency, destructive. */
+  --coral:      #E2563F;
+  --coral-wash: #FDEEEB;
+
+  /* Surfaces */
+  --paper:      #F6F7F9;
+  --paper-2:    #EEF1F5;
+  --card:       #FFFFFF;
+  --white:      #FFFFFF;
+
+  /* Text */
+  --text:       #101A2B;
+  --text-2:     #4A5768;
+  --text-3:     #7C8899;
+  --on-dark:    #EEF2F7;
+  --on-dark-2:  rgba(238,242,247,.66);
+
+  /* Status */
+  --ok:      #12805C;
+  --warn:    #C4820C;
+  --danger:  #C93E28;
+  --info:    #2C6E9B;
+
+  /* Lines & glass */
+  --line:        #E3E8EF;
+  --line-strong: #CFD7E1;
+  --line-dark:   rgba(255,255,255,.12);
+  --glass:       rgba(255,255,255,.72);
+  --glass-dark:  rgba(10,27,61,.72);
+  --blur:        18px;
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans:    'Plus Jakarta Sans', system-ui, 'Segoe UI', Arial, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  /* Radii */
+  --r-xs:   6px;
+  --r-sm:   10px;
+  --r:      14px;
+  --r-lg:   20px;
+  --r-xl:   28px;
+  --r-pill: 999px;
+
+  /* Elevation — tuned tight; this is a shop, not a dashboard demo. */
+  --e-1: 0 1px 2px rgba(16,26,43,.06), 0 1px 3px rgba(16,26,43,.04);
+  --e-2: 0 2px 4px rgba(16,26,43,.05), 0 6px 16px rgba(16,26,43,.07);
+  --e-3: 0 8px 20px rgba(16,26,43,.10), 0 20px 44px rgba(16,26,43,.10);
+  --e-leaf:  0 8px 22px rgba(21,87,208,.26);
+  --e-amber: 0 8px 22px rgba(233,162,27,.26);
+
+  --t:      all .28s cubic-bezier(.4,0,.2,1);
+  --t-fast: all .15s ease;
+
+  --container: 1300px;
+  --header-h:  72px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .display {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+  margin: 0 0 .5em;
+}
+
+h1 { font-size: clamp(2.1rem, 4.6vw, 3.5rem); }
+h2 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); }
+
+p { margin: 0 0 1em; }
+a { color: inherit; text-decoration: none; }
+img, svg { max-width: 100%; display: block; }
+button { font: inherit; }
+
+.eyebrow {
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--leaf);
+  margin-bottom: .6rem;
+  display: block;
+}
+.eyebrow--amber { color: var(--amber-dark); }
+
+.lede { font-size: 1.05rem; color: var(--text-2); line-height: 1.7; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+.container--narrow { max-width: 820px; }
+
+/* Money is set in the display face and never wraps mid-figure. */
+.money { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.text-leaf  { color: var(--leaf) !important; }
+.text-amber { color: var(--amber-dark) !important; }
+.text-muted-2 { color: var(--text-2) !important; }
+.text-muted-3 { color: var(--text-3) !important; }
+.bg-ink   { background: var(--ink) !important; }
+.bg-paper { background: var(--paper) !important; }
+.bg-leaf-wash { background: var(--leaf-wash) !important; }
+
+::selection { background: var(--leaf); color: #fff; }
+
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--paper-2); }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); border: 3px solid var(--paper-2); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* Focus: visible for keyboards, silent for mice. */
+:focus-visible { outline: 3px solid var(--leaf-light); outline-offset: 2px; border-radius: var(--r-xs); }
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 9999;
+  background: var(--ink); color: #fff; padding: .8rem 1.2rem; border-radius: 0 0 var(--r) 0;
+}
+.skip-link:focus { left: 0; }
