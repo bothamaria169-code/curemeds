@@ -51,6 +51,7 @@ $nav = match ($dash_role) {
             ['users',    'users.php',    'fa-users',   'Accounts', null],
             ['messages', 'messages.php', 'fa-inbox',   'Messages', $stats['unread_msgs'] ?? 0],
             ['settings', 'settings.php', 'fa-sliders', 'Settings', null],
+            ['account',  'account.php',  'fa-user-shield', 'My account', null],
         ],
     ],
     default => [

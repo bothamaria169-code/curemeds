@@ -84,7 +84,7 @@ function setup_tasks(): array
         ['cron', 'Email', 'Add the reminders cron job', 'you',
             'cPanel → <b>Cron Jobs</b> → every 5 minutes (<code>*/5 * * * *</code>):<br><code>/usr/local/bin/php /home/USER/public_html/scripts/cron.php &gt;/dev/null 2&gt;&amp;1</code><br>No shell access? Use a URL cron (e.g. cron-job.org) on:<br><code>' . e($cron) . '</code>', get_setting('reminders_last_run', '') !== '' && strtotime((string) get_setting('reminders_last_run')) > time() - 3600 ? true : null],
         ['admin-password', 'Store', 'Change the admin password', 'you',
-            'Sign in as <code>admin@curemeds.co.za</code>, then <b>Accounts</b> → edit your account, or use the forgot-password link.', null],
+            'Admin sidebar → <b>My account</b> → <b>Change password</b>. Then delete <code>ADMIN-LOGIN.txt</code> from the build computer.', null],
         ['products', 'Store', 'Check every product, price and photo', 'you',
             '<b>Products</b> → open each one. Replace stock photos with your own pack shots when you have them, and use <b>Write with AI</b> for descriptions.', null],
         ['whatsapp', 'Store', 'Confirm the WhatsApp number', 'site',
