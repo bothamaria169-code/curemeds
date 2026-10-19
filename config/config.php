@@ -1,6 +1,35 @@
 <?php
 declare(strict_types=1);
 
+// ── Server check ─────────────────────────────────────────────────────────
+if (PHP_VERSION_ID < 80100) {
+    http_response_code(500);
+    exit('CureMeds needs PHP 8.1 or newer, but this server runs PHP ' . PHP_VERSION
+        . '. In cPanel open "MultiPHP Manager" (or "Select PHP Version"), tick curemeds.co.za and choose PHP 8.2.');
+}
+
+// A fatal error on the live site would otherwise be a blank "HTTP ERROR 500".
+// Show a plain page instead; the details go to public_html/error_log, and are
+// shown on screen only with ?debug=<cron_key from config/secrets.php>.
+register_shutdown_function(static function (): void {
+    $err = error_get_last();
+    if (!$err || !in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true) || PHP_SAPI === 'cli' || ini_get('display_errors') === '1') {
+        return;
+    }
+    $show = defined('CRON_KEY') && hash_equals(CRON_KEY, (string) ($_GET['debug'] ?? ''));
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: text/html; charset=utf-8');
+    }
+    echo '<div style="font-family:system-ui,Arial,sans-serif;max-width:620px;margin:40px auto;padding:24px;border-radius:14px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.08)">'
+       . '<h1 style="font-size:20px;margin-top:0">Something went wrong on our side</h1>'
+       . '<p>Please try again in a minute, or WhatsApp us on 083 576 1713.</p>'
+       . ($show ? '<pre style="white-space:pre-wrap;background:#F6F7F9;padding:12px;border-radius:8px;font-size:13px">'
+           . htmlspecialchars($err['message'] . "\n" . $err['file'] . ':' . $err['line'], ENT_QUOTES, 'UTF-8') . '</pre>'
+         : '<p style="color:#7C8899;font-size:13px">Site owner: the details are in <code>public_html/error_log</code>.</p>')
+       . '</div>';
+});
+
 // ── Site identity ─────────────────────────────────────────────────────────
 define('SITE_NAME', 'CureMeds');
 define('SITE_DOMAIN', 'curemeds.co.za');
