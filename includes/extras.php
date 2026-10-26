@@ -102,7 +102,7 @@ function curemeds_migrate(): void
             }
 
             foreach ([
-                'bank_account_number' => '10266859613', 'bank_name' => '', 'bank_account_holder' => '', 'bank_branch_code' => '',
+                'bank_account_number' => '10266859613', 'bank_name' => 'Standard Bank', 'bank_account_holder' => '', 'bank_branch_code' => '',
                 'cod_enabled' => '1', 'cod_note' => 'Pay the driver in cash when your order arrives. Available where our courier offers it — we confirm on WhatsApp.',
                 'eft_enabled' => '1', 'articles_per_day' => '1', 'reels_per_day' => '6', 'content_start_hour' => '8', 'content_end_hour' => '20',
                 'auto_product_newsletter' => '0', 'product_newsletter_day' => '2', 'ticker_enabled' => '1',
