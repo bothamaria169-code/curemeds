@@ -16,7 +16,10 @@ require_once __DIR__ . '/../classes/NewsletterTemplates.php';
 require_once __DIR__ . '/../classes/ShopAssistant.php';
 require_once __DIR__ . '/../classes/Health.php';
 require_once __DIR__ . '/../classes/Groq.php';
+require_once __DIR__ . '/../classes/ImageKit.php';
 require_once __DIR__ . '/../classes/SocialPoster.php';
+require_once __DIR__ . '/../classes/TikTok.php';
+require_once __DIR__ . '/../classes/ContentEngine.php';
 
 // ── One-time messages across a redirect ──────────────────────────────────
 /** Queues a message for the next page view. $type: success | danger | warn | info */
@@ -66,9 +69,9 @@ function setup_tasks(): array
     $cron = SITE_URL . '/scripts/cron.php?key=' . CRON_KEY;
     $tasks = [
         ['hosting-db', 'Hosting', 'Create the live database and user in cPanel', 'you',
-            'cPanel → <b>MySQL® Databases</b>: database <code>curemedsco_database</code>, user <code>database_nexus</code>, then <b>Add User To Database</b> with ALL PRIVILEGES. (cPanel may add your account prefix — if it does, update <code>config/secrets.php</code> to match.)', null],
+            'cPanel → <b>MySQL® Databases</b>: database <code>curemedsco_database</code>, user <code>curemedsco_nexus</code>, then <b>Add User To Database</b> with ALL PRIVILEGES. <code>config/secrets.php</code> uses the same names.', $count('SELECT COUNT(*) FROM settings') > 0 ? true : null],
         ['hosting-import', 'Hosting', 'Import the database', 'you',
-            'cPanel → <b>phpMyAdmin</b> → choose the database → <b>Import</b> → <code>database/database.sql</code>, then <code>database/seed.sql</code>.', null],
+            'cPanel → <b>phpMyAdmin</b> → choose the database → <b>Import</b> → <code>database/database.sql</code>, then <code>database/seed.sql</code>. New tables after that add themselves on the next page load.', $count('SELECT COUNT(*) FROM products') > 0 ? true : null],
         ['hosting-secrets', 'Hosting', 'Upload config/secrets.php to the server', 'you',
             'It holds the database and mailbox passwords, so it is <b>not</b> in GitHub. Upload it once with File Manager to <code>public_html/config/</code>. Deploys never overwrite it.', IS_PRODUCTION ? DB_PASS !== '' : null],
         ['hosting-ssl', 'Hosting', 'Switch on HTTPS (free SSL)', 'you',
@@ -89,6 +92,8 @@ function setup_tasks(): array
             '<b>Products</b> → open each one. Replace stock photos with your own pack shots when you have them, and use <b>Write with AI</b> for descriptions.', null],
         ['whatsapp', 'Store', 'Confirm the WhatsApp number', 'site',
             'Enquiries go to <code>' . e(Health::displayPhone(whatsapp_number())) . '</code>. Change it in <b>Settings</b> if needed.', whatsapp_number() !== '' ? true : null],
+        ['bank', 'Store', 'Add the bank name for EFT payments', 'you',
+            '<b>Settings</b> → Payment: the account number is in; add the bank name (and the account holder when you want it shown). Customers see it on the cart page and in the payment email.', trim((string) get_setting('bank_name', '')) !== '' ? true : null],
         ['demo-patient', 'Store', 'Delete the demo patient before launch', 'you',
             '<b>Patients</b> → Demo Patient (082 000 0001) → Delete.', $count("SELECT COUNT(*) FROM users WHERE phone = '27820000001'") === 0 ? true : null],
         ['groq', 'AI & social', 'Add your Groq API key', 'you',
@@ -97,6 +102,12 @@ function setup_tasks(): array
             '<code>developers.facebook.com</code> → <b>My Apps → Create App</b> → use case <b>Manage everything on your Page</b>. Copy the <b>App ID</b> and <b>App secret</b> (App settings → Basic) into <b>AI & social media</b>. Under Facebook Login → Settings, add the redirect URI shown on that page.', $has('meta_app_id') && $has('meta_app_secret') ? true : null],
         ['meta-connect', 'AI & social', 'Connect the CureMeds Facebook Page and Instagram', 'you',
             'Link Instagram to the Page in Meta Business Suite first (Instagram must be a Business account). Then press <b>Connect with Facebook</b>.', $has('meta_page_token') ? true : null],
+        ['imagekit', 'AI & social', 'Add your ImageKit keys (for reels)', 'you',
+            '<code>imagekit.io</code> → <b>Developer options</b>: copy the URL endpoint, public key and private key into <b>AI & social media → ImageKit</b>. Full steps in <code>FACEBOOK-TIKTOK-SETUP.md</code>.', ImageKit::ready() ? true : null],
+        ['tiktok', 'AI & social', 'Connect TikTok (reels arrive as drafts)', 'you',
+            '<code>developers.tiktok.com</code> → your app → <b>Sandbox</b>: add the CureMeds TikTok account as a target user, add Login Kit + Content Posting API, set the redirect URI shown in <b>AI & social media → TikTok</b>, paste the Client key and secret there and press <b>Connect TikTok</b>. Full steps in <code>FACEBOOK-TIKTOK-SETUP.md</code>.', TikTok::connected() ? true : null],
+        ['auto-content', 'AI & social', 'Switch on automatic articles, reels and newsletters', 'you',
+            '<b>AI & social media → Automatic content</b>: tick articles, reels and "email each article". <b>Email templates</b> → switch on the weekly product newsletter. The cron job does the rest.', get_setting('auto_articles', '0') === '1' || get_setting('auto_reels', '0') === '1' ? true : null],
         ['social-links', 'AI & social', 'Add your Facebook / Instagram / TikTok links', 'you',
             '<b>Settings</b> → social links, so the footer icons work.', $has('facebook_url') || $has('instagram_url') ? true : null],
     ];
@@ -705,3 +716,5 @@ function mask_email(string $email): string
         : mb_substr($local, 0, 1) . '***' . mb_substr($local, -1);
     return $domain !== '' ? $masked . '@' . $domain : $masked;
 }
+
+require_once __DIR__ . '/extras.php';

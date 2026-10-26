@@ -16,6 +16,8 @@ $user  = current_user();
 $items = [];
 $name  = '';
 $phone = '';
+$email = '';
+$pay   = '';
 $source = 'product';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $source = 'list';
     $name   = mb_substr(trim(strip_tags((string) ($_POST['name'] ?? ''))), 0, 120);
     $phone  = Health::normalizePhone((string) ($_POST['phone'] ?? '')) ?? '';
+    $email  = filter_var(trim((string) ($_POST['email'] ?? '')), FILTER_VALIDATE_EMAIL) ?: '';
+    $pay    = array_key_exists((string) ($_POST['payment_method'] ?? ''), payment_methods()) ? (string) $_POST['payment_method'] : '';
     foreach (cart_items() as $line) {
         $items[] = [
             'product_id' => (int) $line['product']['id'],
@@ -54,6 +58,7 @@ if (!$items) {
 if ($user) {
     $name  = $name ?: (string) $user['name'];
     $phone = $phone ?: (string) ($user['phone'] ?? '');
+    $email = $email ?: (string) ($user['email'] ?? '');
 }
 
 $total = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $items));
@@ -64,6 +69,7 @@ $lines = array_map(fn($i) => '• ' . $i['qty'] . ' × ' . $i['name'] . ($i['pac
 $message = "Hi CureMeds, I'd like to order:\n" . implode("\n", $lines)
     . (count($items) > 1 ? "\n\nTotal: " . format_price_short($total) : '')
     . ($name !== '' ? "\n\nName: " . $name : '')
+    . ($pay !== '' ? "\nPaying by: " . payment_methods()[$pay]['label'] : '')
     . "\nPlease confirm stock, delivery and payment details.";
 
 // Don't let a reload or a bot fill the enquiries table: one save per list per 10 minutes.
@@ -77,7 +83,31 @@ if (rate_limit('enquiry', 20, 3600) && ($_SESSION['last_enquiry'] ?? '') !== $fi
             'items'   => json_encode($items, JSON_UNESCAPED_UNICODE),
             'total'   => $total,
             'source'  => $source,
+            'email'   => $email ?: null,
+            'payment_method' => $pay ?: null,
         ]);
+        // The order and our bank / cash-on-delivery details, by email (Admin → Email templates).
+        if ($email !== '') {
+            try {
+                $enq = ['id' => $id, 'name' => $name, 'items' => json_encode($items), 'total' => $total];
+                if (send_template_email($email, 'enquiry-payment', enquiry_email_vars($enq))) {
+                    db_update('enquiries', (int) $id, ['emailed_at' => date('Y-m-d H:i:s')]);
+                }
+            } catch (Throwable $e) {
+                error_log('Enquiry email not sent: ' . $e->getMessage());
+            }
+        }
+        // The order and our bank / cash-on-delivery details, by email (Admin → Email templates).
+        if ($email !== '') {
+            try {
+                $enq = ['id' => $id, 'name' => $name, 'items' => json_encode($items), 'total' => $total];
+                if (send_template_email($email, 'enquiry-payment', enquiry_email_vars($enq))) {
+                    db_update('enquiries', (int) $id, ['emailed_at' => date('Y-m-d H:i:s')]);
+                }
+            } catch (Throwable $e) {
+                error_log('Enquiry email not sent: ' . $e->getMessage());
+            }
+        }
         $_SESSION['last_enquiry'] = $fingerprint;
         $message .= "\n(Ref: E" . $id . ')';
     } catch (Throwable $e) {

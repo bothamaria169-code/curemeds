@@ -1,0 +1,640 @@
+{
+    "brands": [
+        {
+            "name": "NOW Foods",
+            "slug": "now-foods",
+            "tagline": "Trusted supplements since 1968.",
+            "blurb": "Well-known US supplement brand stocked by CureMeds: shark cartilage, NAD+ and blood pressure support.",
+            "accent": "#E8681F"
+        },
+        {
+            "name": "Partner Brands",
+            "slug": "partner-brands",
+            "tagline": "Favourites from brands we trust.",
+            "blurb": "Skin care, herbal teas, multivitamins and specialist formulas from established health brands.",
+            "accent": "#2F5F8A"
+        }
+    ],
+    "categories": [
+        {
+            "name": "Immune Support",
+            "slug": "immune-support",
+            "icon": "fa-shield-heart",
+            "blurb": "Daily support for a stronger immune system.",
+            "image": "assets/img/products/01.jpg"
+        },
+        {
+            "name": "Blood Sugar Support",
+            "slug": "blood-sugar-support",
+            "icon": "fa-droplet",
+            "blurb": "Support for healthy glucose balance.",
+            "image": "assets/img/products/02.jpg"
+        },
+        {
+            "name": "Heart & Circulation",
+            "slug": "heart-circulation",
+            "icon": "fa-heart-pulse",
+            "blurb": "Blood pressure and circulation support.",
+            "image": "assets/img/products/26.jpg"
+        },
+        {
+            "name": "Men's Health",
+            "slug": "mens-health",
+            "icon": "fa-mars",
+            "blurb": "Vitality, energy and performance support for men.",
+            "image": "assets/img/products/08.jpg"
+        },
+        {
+            "name": "Women's Health",
+            "slug": "womens-health",
+            "icon": "fa-venus",
+            "blurb": "Balance and everyday wellness for women.",
+            "image": "assets/img/products/09.jpg"
+        },
+        {
+            "name": "Weight Management",
+            "slug": "weight-management",
+            "icon": "fa-weight-scale",
+            "blurb": "Support for a healthy weight and metabolism.",
+            "image": "assets/img/products/10.jpg"
+        },
+        {
+            "name": "Brain, Energy & Ageing",
+            "slug": "brain-energy",
+            "icon": "fa-brain",
+            "blurb": "Focus, memory, energy and healthy ageing.",
+            "image": "assets/img/products/25.jpg"
+        },
+        {
+            "name": "Lungs & Breathing",
+            "slug": "lungs-breathing",
+            "icon": "fa-lungs",
+            "blurb": "Herbal and nutritional support for the respiratory system.",
+            "image": "assets/img/products/23.jpg"
+        },
+        {
+            "name": "Supportive Care",
+            "slug": "supportive-care",
+            "icon": "fa-hand-holding-medical",
+            "blurb": "Nutritional support during demanding health journeys.",
+            "image": "assets/img/products/04.jpg"
+        },
+        {
+            "name": "Skin & Body Care",
+            "slug": "skin-body",
+            "icon": "fa-spa",
+            "blurb": "Creams and gels for skin, feet and joints.",
+            "image": "assets/img/products/27.jpg"
+        }
+    ],
+    "products": [
+        {
+            "brand": "shieldwell",
+            "category": "immune-support",
+            "name": "ShieldWell Immune Support",
+            "slug": "shieldwell-immune-support",
+            "short_desc": "A daily immune-support capsule from our ShieldWell range, for adults who want extra support for their immune system.",
+            "description": "<p>A daily immune-support capsule from our ShieldWell range, for adults who want extra support for their immune system.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports normal immune function\nHelps fill common nutrient gaps\nOne capsule a day\nTake alongside — never instead of — prescribed treatment",
+            "usage_notes": "Take one capsule daily with food.",
+            "retail_price": "450.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P01",
+            "featured_image": "assets/img/products/01b.jpg",
+            "header_image": "assets/img/products/01.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "immune,shieldwell,daily",
+            "gallery": [
+                "assets/img/products/01.jpg"
+            ]
+        },
+        {
+            "brand": "glucobalance",
+            "category": "blood-sugar-support",
+            "name": "GlucoBalance Blood Sugar Support",
+            "slug": "glucobalance-blood-sugar-support",
+            "short_desc": "Daily capsules that support healthy blood glucose balance as part of a healthy diet and lifestyle.",
+            "description": "<p>Daily capsules that support healthy blood glucose balance as part of a healthy diet and lifestyle.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports healthy blood sugar balance\nNatural herbal extracts\nSupports overall metabolic wellness\n30 capsules — one month",
+            "usage_notes": "Take one capsule daily with your main meal. Speak to your clinic first if you use insulin or diabetes tablets.",
+            "retail_price": "395.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P02",
+            "featured_image": "assets/img/products/02b.jpg",
+            "header_image": "assets/img/products/02.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "glucobalance,blood sugar,glucose,diabetes support",
+            "gallery": [
+                "assets/img/products/02.jpg"
+            ]
+        },
+        {
+            "brand": "glucobalance",
+            "category": "blood-sugar-support",
+            "name": "GlucoBalance Pen",
+            "slug": "glucobalance-pen",
+            "short_desc": "The GlucoBalance blood glucose support pen — a convenient way to add GlucoBalance to your daily routine.",
+            "description": "<p>The GlucoBalance blood glucose support pen — a convenient way to add GlucoBalance to your daily routine.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Blood glucose support\nCompact, easy-to-carry pen\nPairs with GlucoBalance capsules",
+            "usage_notes": "Use exactly as directed on the pack insert. Ask us on WhatsApp if you are unsure how to use it.",
+            "retail_price": "650.00",
+            "pack_size": "1 pen",
+            "sku": "CM-P03",
+            "featured_image": "assets/img/products/03b.jpg",
+            "header_image": "assets/img/products/03.jpg",
+            "is_featured": 1,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "glucobalance,pen,blood sugar",
+            "gallery": [
+                "assets/img/products/03.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "supportive-care",
+            "name": "OncoHarbor Supportive Care",
+            "slug": "oncoharbor-supportive-care",
+            "short_desc": "Nutritional supportive-care capsules for people going through demanding treatment who want daily nutritional support.",
+            "description": "<p>Nutritional supportive-care capsules for people going through demanding treatment who want daily nutritional support.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Daily nutritional support\nGentle once-a-day capsule\nUse only with your oncology team’s approval",
+            "usage_notes": "Take one capsule daily with food — only after checking with your treating doctor, as some supplements interact with cancer treatment.",
+            "retail_price": "520.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P04",
+            "featured_image": "assets/img/products/04b.jpg",
+            "header_image": "assets/img/products/04.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "supportive care,oncoharbor,wellness",
+            "gallery": [
+                "assets/img/products/04.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "brain-energy",
+            "name": "MemoryHarbor Cognitive Support",
+            "slug": "memoryharbor-cognitive-support",
+            "short_desc": "Memory-care capsules with nutrients that support normal cognitive function, focus and recall.",
+            "description": "<p>Memory-care capsules with nutrients that support normal cognitive function, focus and recall.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports normal cognitive function\nFocus and memory support\nOne capsule a day",
+            "usage_notes": "Take one capsule daily with breakfast.",
+            "retail_price": "420.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P05",
+            "featured_image": "assets/img/products/05b.jpg",
+            "header_image": "assets/img/products/05.jpg",
+            "is_featured": 1,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "memory,brain,focus,cognitive",
+            "gallery": [
+                "assets/img/products/05.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "lungs-breathing",
+            "name": "TuberaShield Respiratory Support",
+            "slug": "tuberashield-respiratory-support",
+            "short_desc": "Respiratory and immune support capsules for people who want to look after their lungs during recovery.",
+            "description": "<p>Respiratory and immune support capsules for people who want to look after their lungs during recovery.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports lung and immune health\nNutritional support during recovery\nNever replaces TB treatment — finish every course",
+            "usage_notes": "Take one capsule daily with food. If you are on TB treatment, keep taking every dose exactly as your clinic prescribes.",
+            "retail_price": "480.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P06",
+            "featured_image": "assets/img/products/06b.jpg",
+            "header_image": "assets/img/products/06.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "lungs,respiratory,immune,tuberashield",
+            "gallery": [
+                "assets/img/products/06.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "mens-health",
+            "name": "VirilityAxis Men’s Vitality Complex",
+            "slug": "virilityaxis-mens-vitality",
+            "short_desc": "A men’s vitality complex with KSM-66 ashwagandha, black maca and vegetarian capsules for energy and drive.",
+            "description": "<p>A men’s vitality complex with KSM-66 ashwagandha, black maca and vegetarian capsules for energy and drive.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "KSM-66 ashwagandha and black maca\nSupports energy, stamina and drive\nVegetarian capsules",
+            "usage_notes": "Take two capsules daily with food.",
+            "retail_price": "495.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P08",
+            "featured_image": "assets/img/products/08b.jpg",
+            "header_image": "assets/img/products/08.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "men,vitality,maca,ashwagandha,energy",
+            "gallery": [
+                "assets/img/products/08.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "womens-health",
+            "name": "CurveAura Women’s Wellness",
+            "slug": "curveaura-womens-wellness",
+            "short_desc": "A daily women’s wellness supplement with vitamins and botanicals for natural balance.",
+            "description": "<p>A daily women’s wellness supplement with vitamins and botanicals for natural balance.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Vitamins, botanicals and balance\nSupports everyday wellness\n60 capsules, 500 mg",
+            "usage_notes": "Take two capsules daily with a meal.",
+            "retail_price": "420.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P09",
+            "featured_image": "assets/img/products/09b.jpg",
+            "header_image": "assets/img/products/09.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "women,wellness,balance,curveaura",
+            "gallery": [
+                "assets/img/products/09.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "weight-management",
+            "name": "LeanLine Weight Wellness",
+            "slug": "leanline-weight-wellness",
+            "short_desc": "A once-daily dietary supplement that supports a healthy weight alongside sensible eating and regular activity.",
+            "description": "<p>A once-daily dietary supplement that supports a healthy weight alongside sensible eating and regular activity.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports a healthy lifestyle and weight\nOne capsule a day\n60 capsules — two months",
+            "usage_notes": "Take one capsule daily before your first meal, with a full glass of water.",
+            "retail_price": "380.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P10",
+            "featured_image": "assets/img/products/10b.jpg",
+            "header_image": "assets/img/products/10.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "weight,slimming,leanline,metabolism",
+            "gallery": [
+                "assets/img/products/10.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "immune-support",
+            "name": "ViraCure Natural Antiviral Formula",
+            "slug": "viracure-natural-formula",
+            "short_desc": "A natural herbal formula that supports the immune system through cold and flu season.",
+            "description": "<p>A natural herbal formula that supports the immune system through cold and flu season.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports immune system health\nHerbal extracts\nSupports general wellness\n60 capsules",
+            "usage_notes": "Take two capsules daily with food.",
+            "retail_price": "450.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P14",
+            "featured_image": "assets/img/products/14b.jpg",
+            "header_image": "assets/img/products/14.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "immune,viracure,herbal,cold and flu",
+            "gallery": [
+                "assets/img/products/14.jpg"
+            ]
+        },
+        {
+            "brand": "now-foods",
+            "category": "supportive-care",
+            "name": "NOW Shark Cartilage 750 mg",
+            "slug": "now-shark-cartilage-750mg",
+            "short_desc": "NOW Foods shark cartilage with naturally occurring mucopolysaccharides and calcium for skeletal health.",
+            "description": "<p>NOW Foods shark cartilage with naturally occurring mucopolysaccharides and calcium for skeletal health.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "750 mg per capsule\nPromotes skeletal health\nNaturally occurring mucopolysaccharides and calcium",
+            "usage_notes": "Take as directed on the label, with food.",
+            "retail_price": "420.00",
+            "pack_size": "100 capsules",
+            "sku": "CM-P19",
+            "featured_image": "assets/img/products/19b.jpg",
+            "header_image": "assets/img/products/19.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "now,shark cartilage,joints,bones",
+            "gallery": [
+                "assets/img/products/19.jpg"
+            ]
+        },
+        {
+            "brand": "now-foods",
+            "category": "brain-energy",
+            "name": "NOW NAD+ Resveratrol 1000 mg",
+            "slug": "now-nad-resveratrol",
+            "short_desc": "NOW Foods NAD+ with resveratrol for cellular energy and healthy ageing.",
+            "description": "<p>NOW Foods NAD+ with resveratrol for cellular energy and healthy ageing.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports NAD+ levels\nAntioxidant protection\nPromotes healthy ageing",
+            "usage_notes": "Take as directed on the label.",
+            "retail_price": "690.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P20",
+            "featured_image": "assets/img/products/20b.jpg",
+            "header_image": "assets/img/products/20.jpg",
+            "is_featured": 1,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "now,nad,resveratrol,ageing,energy",
+            "gallery": [
+                "assets/img/products/20.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "immune-support",
+            "name": "Essiac Herbal Tea",
+            "slug": "essiac-herbal-tea",
+            "short_desc": "The traditional Essiac herbal tea blend from Rene M. Caisse, RN, for immune system support.",
+            "description": "<p>The traditional Essiac herbal tea blend from Rene M. Caisse, RN, for immune system support.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Traditional four-herb blend\nImmune system support\nMakes a daily herbal tea",
+            "usage_notes": "Prepare as directed on the pack.",
+            "retail_price": "520.00",
+            "pack_size": "42.5 g",
+            "sku": "CM-P21",
+            "featured_image": "assets/img/products/21b.jpg",
+            "header_image": "assets/img/products/21.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "essiac,herbal tea,immune",
+            "gallery": [
+                "assets/img/products/21.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "immune-support",
+            "name": "HPDRx ONE Immune & Cellular Support",
+            "slug": "hpdrx-one",
+            "short_desc": "A high-potency multivitamin, mineral and antioxidant complex for immune system and cellular health support.",
+            "description": "<p>A high-potency multivitamin, mineral and antioxidant complex for immune system and cellular health support.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Vitamins, minerals and antioxidants in one\nImmune and cellular support\n180 capsules",
+            "usage_notes": "Take as directed on the label, with food.",
+            "retail_price": "890.00",
+            "pack_size": "180 capsules",
+            "sku": "CM-P22",
+            "featured_image": "assets/img/products/22b.jpg",
+            "header_image": "assets/img/products/22.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "multivitamin,immune,antioxidant",
+            "gallery": [
+                "assets/img/products/22.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "lungs-breathing",
+            "name": "Lung Assistance 60-Herb Supplement",
+            "slug": "lung-assistance",
+            "short_desc": "A 60-herb formula that supports respiratory health, clear airways and the body’s natural defences.",
+            "description": "<p>A 60-herb formula that supports respiratory health, clear airways and the body’s natural defences.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports respiratory health\nHelps clear airways\nBoosts natural defences",
+            "usage_notes": "Take two capsules daily with food.",
+            "retail_price": "380.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P23",
+            "featured_image": "assets/img/products/23b.jpg",
+            "header_image": "assets/img/products/23.jpg",
+            "is_featured": 1,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "lungs,herbal,respiratory",
+            "gallery": [
+                "assets/img/products/23.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "brain-energy",
+            "name": "NAD+ Resveratrol 1000 mg",
+            "slug": "nad-resveratrol-1000mg",
+            "short_desc": "NAD+ with resveratrol for cellular energy, antioxidant support and healthy ageing.",
+            "description": "<p>NAD+ with resveratrol for cellular energy, antioxidant support and healthy ageing.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports cellular energy\nPowerful antioxidant\nHealthy ageing support",
+            "usage_notes": "Take two capsules daily.",
+            "retail_price": "590.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P24",
+            "featured_image": "assets/img/products/24b.jpg",
+            "header_image": "assets/img/products/24.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "nad,resveratrol,ageing",
+            "gallery": [
+                "assets/img/products/24.jpg"
+            ]
+        },
+        {
+            "brand": "curemeds-essentials",
+            "category": "brain-energy",
+            "name": "CureMeds Magnesium Brain Focus",
+            "slug": "magnesium-brain-focus",
+            "short_desc": "Our high-absorption magnesium formula for focus, memory, clarity and mental performance.",
+            "description": "<p>Our high-absorption magnesium formula for focus, memory, clarity and mental performance.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "High-absorption magnesium\nFocus, memory and clarity\nSupports mental performance",
+            "usage_notes": "Take two capsules daily, one in the morning and one in the evening.",
+            "retail_price": "320.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P25",
+            "featured_image": "assets/img/products/25b.jpg",
+            "header_image": "assets/img/products/25.jpg",
+            "is_featured": 1,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "magnesium,brain,focus,curemeds",
+            "gallery": [
+                "assets/img/products/25.jpg"
+            ]
+        },
+        {
+            "brand": "now-foods",
+            "category": "heart-circulation",
+            "name": "NOW Blood Pressure Health",
+            "slug": "now-blood-pressure-health",
+            "short_desc": "NOW Foods cardiovascular support that helps maintain blood pressure already within the healthy range.",
+            "description": "<p>NOW Foods cardiovascular support that helps maintain blood pressure already within the healthy range.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Cardiovascular support\nHelps maintain healthy blood pressure\nVegetarian/vegan capsules",
+            "usage_notes": "Take as directed on the label. Keep taking any prescribed blood pressure tablets.",
+            "retail_price": "450.00",
+            "pack_size": "90 capsules",
+            "sku": "CM-P26",
+            "featured_image": "assets/img/products/26b.jpg",
+            "header_image": "assets/img/products/26.jpg",
+            "is_featured": 1,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "blood pressure,heart,now",
+            "gallery": [
+                "assets/img/products/26.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "skin-body",
+            "name": "CeraVe Psoriasis Moisturizing Cream",
+            "slug": "cerave-psoriasis-cream",
+            "short_desc": "CeraVe moisturizing cream with salicylic acid and ceramides, developed with dermatologists for psoriasis-prone skin.",
+            "description": "<p>CeraVe moisturizing cream with salicylic acid and ceramides, developed with dermatologists for psoriasis-prone skin.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Helps reduce scaling\nThree essential ceramides\nDeveloped with dermatologists",
+            "usage_notes": "Apply to affected areas as directed on the pack.",
+            "retail_price": "380.00",
+            "pack_size": "227 g",
+            "sku": "CM-P27",
+            "featured_image": "assets/img/products/27b.jpg",
+            "header_image": "assets/img/products/27.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "cerave,psoriasis,skin,cream",
+            "gallery": [
+                "assets/img/products/27.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "blood-sugar-support",
+            "name": "Nativa Complex Diabetic Multivitamin",
+            "slug": "nativa-diabetic-multivitamin",
+            "short_desc": "A multivitamin made for people managing diabetes, covering the nutrients they most often run low on.",
+            "description": "<p>A multivitamin made for people managing diabetes, covering the nutrients they most often run low on.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Multivitamin for people with diabetes\nSupports healthy metabolism\nOne capsule a day",
+            "usage_notes": "Take one capsule daily with food.",
+            "retail_price": "260.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P28",
+            "featured_image": "assets/img/products/28b.jpg",
+            "header_image": "assets/img/products/28.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "multivitamin,diabetes,vitamins",
+            "gallery": [
+                "assets/img/products/28.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "supportive-care",
+            "name": "Stem Cell Supplement with Sea Buckthorn",
+            "slug": "stem-cell-supplement",
+            "short_desc": "A plant-based stem cell support supplement made with sea buckthorn berry, red grape and black currant.",
+            "description": "<p>A plant-based stem cell support supplement made with sea buckthorn berry, red grape and black currant.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Made with sea buckthorn berry\nRed grape and black currant\nPlant-based support",
+            "usage_notes": "Take two capsules daily.",
+            "retail_price": "480.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P29",
+            "featured_image": "assets/img/products/29b.jpg",
+            "header_image": "assets/img/products/29.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "stem cell,sea buckthorn,antioxidant",
+            "gallery": [
+                "assets/img/products/29.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "mens-health",
+            "name": "Ultimate Male Blood Flow",
+            "slug": "ultimate-male-blood-flow",
+            "short_desc": "A men’s circulation and blood-flow support supplement.",
+            "description": "<p>A men’s circulation and blood-flow support supplement.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports healthy circulation\nMen’s vitality formula\n90 capsules",
+            "usage_notes": "Take three capsules daily with food.",
+            "retail_price": "450.00",
+            "pack_size": "90 capsules",
+            "sku": "CM-P30",
+            "featured_image": "assets/img/products/30b.jpg",
+            "header_image": "assets/img/products/30.jpg",
+            "is_featured": 0,
+            "is_bestseller": 1,
+            "is_new": 0,
+            "tags": "men,blood flow,circulation",
+            "gallery": [
+                "assets/img/products/30.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "brain-energy",
+            "name": "Wellvita Ashwagandha Root Extract",
+            "slug": "wellvita-ashwagandha",
+            "short_desc": "Ashwagandha root extract for stress and fatigue recovery, with antioxidant support.",
+            "description": "<p>Ashwagandha root extract for stress and fatigue recovery, with antioxidant support.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Stress and fatigue recovery\nAntioxidant and cell protection\nVeggie capsules",
+            "usage_notes": "Take one capsule daily.",
+            "retail_price": "220.00",
+            "pack_size": "30 capsules",
+            "sku": "CM-P31",
+            "featured_image": "assets/img/products/31b.jpg",
+            "header_image": "assets/img/products/31.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 0,
+            "tags": "ashwagandha,stress,sleep,energy",
+            "gallery": [
+                "assets/img/products/31.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "skin-body",
+            "name": "SootheStep Relieving Topical Gel",
+            "slug": "soothestep-gel",
+            "short_desc": "A cooling, soothing gel for swollen feet and ankles, with aloe vera and arnica.",
+            "description": "<p>A cooling, soothing gel for swollen feet and ankles, with aloe vera and arnica.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Cooling and soothing\nAloe vera and arnica\nFor swollen feet and ankles",
+            "usage_notes": "Massage gently into feet and ankles up to three times a day. Not for broken skin.",
+            "retail_price": "190.00",
+            "pack_size": "100 ml",
+            "sku": "CM-P33",
+            "featured_image": "assets/img/products/33b.jpg",
+            "header_image": "assets/img/products/33.jpg",
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "feet,gel,swelling,arnica",
+            "gallery": [
+                "assets/img/products/33.jpg"
+            ]
+        },
+        {
+            "brand": "partner-brands",
+            "category": "lungs-breathing",
+            "name": "Purely Lung Assistance Respiratory Support",
+            "slug": "purely-lung-assistance",
+            "short_desc": "Purely Nutraceuticals Lung Assistance: a herbal respiratory support formula for lung health and easier breathing.",
+            "description": "<p>Purely Nutraceuticals Lung Assistance: a herbal respiratory support formula for lung health and easier breathing.</p><p><b>This is a supplement, not a medicine.</b> It does not diagnose, treat, cure or prevent any disease and never replaces treatment prescribed by your doctor or clinic. Keep taking your prescribed medication and tell your clinic you are using it.</p>",
+            "benefits": "Supports lung health and breathing\nHerbal respiratory formula\n60 capsules",
+            "usage_notes": "Take two capsules daily with food, or as directed on the label.",
+            "retail_price": "420.00",
+            "pack_size": "60 capsules",
+            "sku": "CM-P34",
+            "featured_image": "assets/img/products/34b.jpg",
+            "header_image": null,
+            "is_featured": 0,
+            "is_bestseller": 0,
+            "is_new": 1,
+            "tags": "lungs,respiratory,herbal,breathing",
+            "gallery": []
+        }
+    ]
+}

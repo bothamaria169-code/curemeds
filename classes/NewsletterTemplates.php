@@ -53,6 +53,14 @@ final class NewsletterTemplates
                 'min'    => 0, 'max' => 6,
                 'defaults' => ['eyebrow' => 'Flash sale', 'heading' => 'Save on your wellness favourites', 'cta_label' => 'Shop the sale', 'sale_note' => 'While stock lasts.'],
             ],
+            'article' => [
+                'label'  => 'Article + products',
+                'icon'   => 'fa-newspaper',
+                'blurb'  => 'A blog article teaser with a button to read it, and the products it talks about.',
+                'fields' => ['eyebrow', 'heading', 'intro', 'products', 'cta'],
+                'min'    => 0, 'max' => 3,
+                'defaults' => ['eyebrow' => 'New on the blog', 'heading' => 'Worth a read this week', 'cta_label' => 'Read the article'],
+            ],
             'announcement' => [
                 'label'  => 'Announcement',
                 'icon'   => 'fa-bullhorn',
@@ -79,6 +87,7 @@ final class NewsletterTemplates
             'grid'         => self::grid($data),
             'sale'         => self::sale($data),
             'announcement' => self::announcement($data),
+            'article'      => self::article($data),
             'welcome'      => self::welcome($data),
             default        => '',
         };
@@ -130,6 +139,15 @@ final class NewsletterTemplates
             . ($coupon ? self::couponBox($coupon, (string) ($d['sale_note'] ?? '')) : '')
             . self::productGrid(self::products($d['product_ids'] ?? []))
             . self::button($d['cta_label'] ?? 'Shop the sale', $d['cta_url'] ?? '', self::CORAL);
+    }
+
+    private static function article(array $d): string
+    {
+        $img = !empty($d['image']) ? '<a href="' . e((string) ($d['cta_url'] ?? SITE_URL)) . '"><img src="' . e(email_image_url((string) $d['image'])) . '" width="536" alt="" '
+            . 'style="display:block;width:100%;height:auto;border:0;border-radius:12px;margin:0 0 18px;"></a>' : '';
+        $products = self::products($d['product_ids'] ?? []);
+        return $img . self::header($d) . self::button($d['cta_label'] ?? 'Read the article', $d['cta_url'] ?? '')
+            . ($products ? '<p style="margin:26px 0 10px;font-weight:800;font-size:16px;color:' . self::INK . ';">In this article</p>' . self::productGrid($products) : '');
     }
 
     private static function announcement(array $d): string

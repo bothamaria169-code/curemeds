@@ -20,6 +20,15 @@ $groups = [
         'free_shipping_threshold' => ['Free delivery from', 'number', 'Enquiry total at which courier delivery is quoted as free.'],
         'shipping_flat_rate'      => ['Courier flat rate', 'number'],
     ],
+    'Payment (shown in the cart, on product pages and in the payment email)' => [
+        'eft_enabled'         => ['Accept EFT / bank deposit', 'toggle'],
+        'bank_name'           => ['Bank', 'text', 'e.g. Standard Bank, FNB, Capitec.'],
+        'bank_account_number' => ['Account number', 'text'],
+        'bank_account_holder' => ['Account holder', 'text', 'Leave empty to keep the name hidden from customers.'],
+        'bank_branch_code'    => ['Branch code', 'text', 'Optional.'],
+        'cod_enabled'         => ['Offer cash on delivery', 'toggle'],
+        'cod_note'            => ['Cash on delivery note', 'text', 'What customers read about paying on delivery.'],
+    ],
     'Legal details (shown on the terms, privacy and returns pages)' => [
         'company_name'        => ['Registered company name', 'text', 'The legal entity, e.g. CureMeds Trading (Pty) Ltd.'],
         'company_reg_no'      => ['Company registration number', 'text', 'The CIPC number, e.g. 2024/123456/07. South African law requires online shops to show it.'],

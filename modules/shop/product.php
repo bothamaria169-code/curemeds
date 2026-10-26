@@ -53,7 +53,7 @@ $images = array_values(array_filter($images, function ($i) use (&$seen) {
 
 $page_title       = $product['meta_title'] ?: ($product['name'] . ' — ' . $product['brand_name'] . ' | ' . SITE_NAME);
 $meta_description = $product['meta_desc'] ?: excerpt($product['short_desc'], 155);
-$og_image         = product_image($product['featured_image']);
+$og_image         = product_image($product['header_image'] ?? null ?: $product['featured_image']);
 $json_ld = [
     '@type'       => 'Product',
     'name'        => $product['name'],
@@ -267,6 +267,8 @@ include __DIR__ . '/../../includes/header.php';
           Reseller minimum on this line is <?= (int) $product['min_reseller_qty'] ?> units so we can pack a clean case.
         </p>
       <?php endif; ?>
+
+      <?php $payCardClass = 'mt-3'; include __DIR__ . '/../../includes/payment-card.php'; ?>
 
       <!-- ── Benefits ─────────────────────────────────────────────── -->
       <?php if ($benefits): ?>

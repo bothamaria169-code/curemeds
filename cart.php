@@ -111,6 +111,20 @@ include __DIR__ . '/includes/header.php';
                      value="<?= e($viewer ? Health::displayPhone($viewer['phone'] ?? '') : '') ?>" autocomplete="tel">
               <div class="field__hint">So we can set up your dose reminders once you've bought.</div>
             </div>
+            <div class="field">
+              <label for="enqEmail">Email <span class="text-muted-3">(optional)</span></label>
+              <input class="input-fc" id="enqEmail" name="email" type="email" placeholder="you@example.com"
+                     value="<?= e((string) ($viewer['email'] ?? '')) ?>" autocomplete="email">
+              <div class="field__hint">We email you the order and our payment details.</div>
+            </div>
+            <?php if (count(payment_methods()) > 1): ?>
+            <div class="field">
+              <label>How would you like to pay?</label>
+              <?php foreach (payment_methods() as $k => $m): ?>
+                <label class="d-block" style="font-weight:500;font-size:.92rem"><input type="radio" name="payment_method" value="<?= e($k) ?>" <?= $k === 'eft' ? 'checked' : '' ?>> <?= e($m['label']) ?></label>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
 
             <button class="btn-fc btn-fc--whatsapp btn-fc--block btn-fc--lg" type="submit">
               <i class="fa-brands fa-whatsapp"></i> Send to <?= e($waDisplay) ?>
@@ -123,10 +137,11 @@ include __DIR__ . '/includes/header.php';
             <ul style="font-size:.85rem;color:var(--text-2);margin:0;padding-left:1.1rem;line-height:1.8">
               <li>WhatsApp opens with your list typed in — just press send.</li>
               <li>We confirm stock, the final total and delivery.</li>
-              <li>You pay by EFT; we courier it in 2–4 working days.</li>
+              <li>You pay by EFT or cash on delivery; we courier it in 2–4 working days.</li>
               <li>We set up your reminders in the patient portal.</li>
             </ul>
           </div>
+          <?php $payCardClass = 'mt-3'; include __DIR__ . '/includes/payment-card.php'; ?>
         </div>
       </div>
     <?php endif; ?>

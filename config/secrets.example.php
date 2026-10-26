@@ -5,7 +5,7 @@ return [
     // Live database (cPanel → MySQL Databases)
     'db_host' => 'localhost',
     'db_name' => 'curemedsco_database',
-    'db_user' => 'database_nexus',
+    'db_user' => 'curemedsco_nexus',
     'db_pass' => 'CHANGE_ME',
 
     // Local XAMPP database

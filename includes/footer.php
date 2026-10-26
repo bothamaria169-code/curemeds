@@ -42,6 +42,8 @@ $wa       = get_setting('contact_whatsapp', '');
         <h6>CureMeds</h6>
         <div class="footer-links">
           <a href="<?= SITE_URL ?>/about.php">About us</a>
+          <a href="<?= SITE_URL ?>/testimonials.php">Testimonials</a>
+          <a href="<?= SITE_URL ?>/gallery.php">Gallery</a>
           <a href="<?= SITE_URL ?>/modules/blog/index.php">Guides &amp; advice</a>
           <a href="<?= SITE_URL ?>/dashboards/customer/index.php">Patient portal</a>
           <a href="<?= SITE_URL ?>/faq.php">FAQ</a>
@@ -97,6 +99,7 @@ $wa       = get_setting('contact_whatsapp', '');
 <?php endif; ?>
 
 <?php include __DIR__ . '/chat-widget.php'; ?>
+<?php include __DIR__ . '/purchase-ticker.php'; ?>
 
 <!-- Compare tray -->
 <div class="compare-bar" id="compareBar">

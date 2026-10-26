@@ -77,6 +77,23 @@ include __DIR__ . '/../../includes/header.php';
       <?= $post['content'] ?>
     </div>
 
+    <?php
+    // Products the article mentions, as normal shop cards.
+    $postProducts = [];
+    foreach (array_filter(array_map('intval', explode(',', (string) ($post['product_ids'] ?? '')))) as $pid) {
+        $pp = (new ProductRepository())->getById($pid);
+        if ($pp && $pp['status'] === 'published') { $postProducts[] = $pp; }
+    }
+    ?>
+    <?php if ($postProducts): ?>
+      <h2 class="mt-5" style="font-size:1.35rem">Shop the products in this article</h2>
+      <div class="row g-3 mt-1">
+        <?php foreach ($postProducts as $product): ?>
+          <div class="col-6 col-md-4"><?php include __DIR__ . '/../../includes/product-card.php'; ?></div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+
     <div class="card-fc card-fc--pad mt-4" style="background:var(--leaf-wash);border-color:#BFE3D5">
       <div class="d-flex gap-3 align-items-center flex-wrap">
         <div style="flex:1;min-width:220px">

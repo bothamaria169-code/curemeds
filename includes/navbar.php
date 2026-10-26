@@ -94,6 +94,7 @@ $announcement   = get_setting('announcement', '');
       <a href="<?= SITE_URL ?>/dashboards/customer/index.php" class="<?= $active($inDir('customer')) ?>">Patient portal</a>
       <a href="<?= SITE_URL ?>/modules/blog/index.php" class="<?= $active($inDir('blog')) ?>">Learn</a>
       <a href="<?= SITE_URL ?>/about.php"      class="<?= $active($current === 'about') ?>">About</a>
+      <a href="<?= SITE_URL ?>/testimonials.php" class="<?= $active($current === 'testimonials') ?>">Reviews</a>
       <a href="<?= SITE_URL ?>/contact.php"    class="<?= $active($current === 'contact') ?>">Contact</a>
     </nav>
 
@@ -173,6 +174,7 @@ $announcement   = get_setting('announcement', '');
     <a href="<?= SITE_URL ?>/cart.php"       class="<?= $active($current === 'cart') ?>">Enquiry list</a>
     <a href="<?= SITE_URL ?>/modules/blog/index.php" class="<?= $active($inDir('blog')) ?>">Learn</a>
     <a href="<?= SITE_URL ?>/about.php"      class="<?= $active($current === 'about') ?>">About</a>
+    <a href="<?= SITE_URL ?>/testimonials.php" class="<?= $active($current === 'testimonials') ?>">Reviews</a>
     <a href="<?= SITE_URL ?>/faq.php"        class="<?= $active($current === 'faq') ?>">FAQ</a>
     <a href="<?= SITE_URL ?>/contact.php"    class="<?= $active($current === 'contact') ?>">Contact</a>
   </nav>

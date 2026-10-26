@@ -10,8 +10,11 @@ declare(strict_types=1);
  * long-lived user token and then a Page token that does not expire, which is
  * what the daily auto-post needs. (Adapted from the BidCo Auctions poster.)
  *
- * Instagram fetches the photo from our server, so the site must be live on a
- * public https address before Instagram posts can work; Facebook is the same.
+ * Meta fetches every photo and video itself. With ImageKit set up they come
+ * from the ImageKit CDN (and work even from localhost); without it they come
+ * from our own server, which must then be live on a public https address.
+ * Reels are built in the admin's browser, uploaded to ImageKit and published
+ * from there (publishReel).
  */
 final class SocialPoster
 {
@@ -105,7 +108,10 @@ final class SocialPoster
         if (isset($json['error'])) {
             return ['ok' => false, 'id' => '', 'error' => (string) ($json['error']['message'] ?? 'Facebook said no')];
         }
-        $id = (string) ($json['post_id'] ?? $json['id'] ?? '');
+        $id = (string) ($json['post_id'] ?? $json['id'] ?? $json['video_id'] ?? '');
+        if ($id === '' && !empty($json['success'])) {
+            return ['ok' => true, 'id' => '', 'error' => ''];
+        }
         return ['ok' => $id !== '', 'id' => $id, 'error' => $id === '' ? 'No post id came back: ' . mb_substr($body, 0, 150) : ''];
     }
 
@@ -166,10 +172,14 @@ final class SocialPoster
         }
     }
 
-    /** A JPEG on a public address — Instagram accepts nothing else. */
+    /** A JPEG on a public address — Instagram accepts nothing else. ImageKit pads it to 4:5. */
     public static function photoUrl(array $product): string
     {
-        return product_image($product['featured_image'] ?? null);
+        $local = (string) ($product['featured_image'] ?? '');
+        if ($local !== '' && !str_starts_with($local, 'http') && ($hosted = ImageKit::hosted($local))) {
+            return ImageKit::withTransform($hosted, ImageKit::PHOTO_TR);
+        }
+        return product_image($local ?: null);
     }
 
     /** The finished caption: AI (or template) text plus price, WhatsApp and hashtags. */
@@ -188,45 +198,102 @@ final class SocialPoster
     }
 
     /** @return array{ok: bool, id: string, error: string} */
-    public static function publish(string $platform, array $product, string $caption): array
+    public static function publish(string $platform, array $product, string $caption, string $type = 'photo'): array
     {
         $c = self::config();
         $photo = self::photoUrl($product);
         if (!self::connected($platform)) {
             $result = ['ok' => false, 'id' => '', 'error' => self::PLATFORMS[$platform] . ' is not connected.'];
         } elseif (!str_starts_with($photo, 'https://')) {
-            $result = ['ok' => false, 'id' => '', 'error' => 'The photo must be on a public https address. Post from the live site, not localhost.'];
+            $result = ['ok' => false, 'id' => '', 'error' => 'The photo must be on a public https address: set up ImageKit, or post from the live site.'];
         } elseif ($platform === 'facebook') {
             $result = self::post(self::GRAPH . $c['page_id'] . '/photos', ['url' => $photo, 'caption' => $caption, 'access_token' => $c['token']]);
         } else {
             $result = self::publishInstagram($c, $photo, mb_substr($caption, 0, 2100));
         }
-        self::log($platform, (int) $product['id'], $result, $caption);
+        self::log($platform, (int) $product['id'], $result, $caption, $type, $photo);
         return $result;
     }
 
-    private static function publishInstagram(array $c, string $photo, string $caption): array
+    /** A Facebook Page link post (Facebook draws the preview from the page's og: tags). Used for articles. */
+    public static function publishLink(array $product, string $link, string $message): array
+    {
+        $c = self::config();
+        $result = self::connected('facebook')
+            ? self::post(self::GRAPH . $c['page_id'] . '/feed', ['link' => $link, 'message' => $message, 'access_token' => $c['token']])
+            : ['ok' => false, 'id' => '', 'error' => 'Facebook Page is not connected.'];
+        self::log('facebook', (int) $product['id'], $result, $message, 'article', $link);
+        return $result;
+    }
+
+    /**
+     * Posts a reel. $videoUrl must be a finished MP4 on a public address
+     * (ImageKit::reelUrl() makes sure of that).
+     *
+     * @return array{ok: bool, id: string, error: string}
+     */
+    public static function publishReel(string $platform, array $product, string $videoUrl, string $caption): array
+    {
+        $c = self::config();
+        if (!self::connected($platform)) {
+            $result = ['ok' => false, 'id' => '', 'error' => self::PLATFORMS[$platform] . ' is not connected.'];
+        } elseif ($platform === 'facebook') {
+            $result = self::publishFacebookReel($c, $videoUrl, $caption);
+        } else {
+            $result = self::publishInstagram($c, $videoUrl, mb_substr($caption, 0, 2100), true);
+        }
+        self::log($platform, (int) $product['id'], $result, $caption, 'reel', $videoUrl);
+        return $result;
+    }
+
+    /** Facebook Page reels: start an upload, let Facebook fetch the file, then publish. */
+    private static function publishFacebookReel(array $c, string $videoUrl, string $caption): array
+    {
+        $start = self::post(self::GRAPH . $c['page_id'] . '/video_reels', ['upload_phase' => 'start', 'access_token' => $c['token']]);
+        if (!$start['ok']) {
+            return $start;
+        }
+        $ch = curl_init('https://rupload.facebook.com/video-upload/' . self::GRAPH_VERSION . '/' . $start['id']);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true, CURLOPT_POSTFIELDS => '', CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 120,
+            CURLOPT_HTTPHEADER => ['Authorization: OAuth ' . $c['token'], 'file_url: ' . $videoUrl],
+        ]);
+        $upload = json_decode((string) curl_exec($ch), true) ?: [];
+        curl_close($ch);
+        if (empty($upload['success'])) {
+            return ['ok' => false, 'id' => '', 'error' => 'Facebook could not fetch the video: ' . self::graphError($upload)];
+        }
+        $done = self::post(self::GRAPH . $c['page_id'] . '/video_reels', [
+            'upload_phase' => 'finish', 'video_id' => $start['id'], 'video_state' => 'PUBLISHED',
+            'description' => $caption, 'access_token' => $c['token'],
+        ]);
+        return $done['ok'] ? ['ok' => true, 'id' => $start['id'], 'error' => ''] : $done;
+    }
+
+    private static function publishInstagram(array $c, string $media, string $caption, bool $reel = false): array
     {
         $account = self::GRAPH . $c['instagram_id'];
-        $container = self::post($account . '/media', ['image_url' => $photo, 'caption' => $caption, 'access_token' => $c['token']]);
+        $container = self::post($account . '/media', ($reel
+            ? ['media_type' => 'REELS', 'video_url' => $media, 'share_to_feed' => 'true']
+            : ['image_url' => $media]) + ['caption' => $caption, 'access_token' => $c['token']]);
         if (!$container['ok']) {
             return $container;
         }
-        // Instagram fetches the photo in the background: wait until it is ready.
-        for ($try = 0; $try < 15; $try++) {
-            sleep(2);
+        // Instagram fetches the photo or video in the background: wait until it is ready.
+        for ($try = 0; $try < ($reel ? 60 : 15); $try++) {
+            sleep($reel ? 3 : 2);
             $status = (string) (self::graphGet($container['id'], ['fields' => 'status_code', 'access_token' => $c['token']])['status_code'] ?? '');
             if ($status === 'FINISHED') {
                 break;
             }
             if ($status === 'ERROR' || $status === 'EXPIRED') {
-                return ['ok' => false, 'id' => '', 'error' => 'Instagram could not use the photo (' . $status . ')'];
+                return ['ok' => false, 'id' => '', 'error' => 'Instagram could not use the ' . ($reel ? 'video' : 'photo') . ' (' . $status . ')'];
             }
         }
         return self::post($account . '/media_publish', ['creation_id' => $container['id'], 'access_token' => $c['token']]);
     }
 
-    private static function log(string $platform, int $productId, array $result, string $caption): void
+    private static function log(string $platform, int $productId, array $result, string $caption, string $type = 'photo', ?string $media = null): void
     {
         db_insert('social_posts', [
             'platform'   => $platform,
@@ -235,6 +302,8 @@ final class SocialPoster
             'remote_id'  => $result['id'] !== '' ? mb_substr($result['id'], 0, 120) : null,
             'error'      => $result['error'] !== '' ? mb_substr($result['error'], 0, 255) : null,
             'caption'    => $caption,
+            'media_type' => $type,
+            'media_url'  => $media !== null ? mb_substr($media, 0, 600) : null,
         ]);
     }
 

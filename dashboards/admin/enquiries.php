@@ -14,20 +14,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
         flash('success', 'Enquiry E' . $id . ' deleted.');
         redirect('dashboards/admin/enquiries.php');
     }
+    if (($_POST['action'] ?? '') === 'clear_anonymous') {
+        $n = db()->exec("DELETE FROM enquiries WHERE status = 'new' AND (name IS NULL OR name = '') AND (phone IS NULL OR phone = '') AND (email IS NULL OR email = '')");
+        flash('success', $n . ' button click' . ($n === 1 ? '' : 's') . ' without a name, number or email deleted.');
+        redirect('dashboards/admin/enquiries.php');
+    }
+    if (($_POST['action'] ?? '') === 'email_payment') {
+        $row = db()->prepare('SELECT * FROM enquiries WHERE id = :id');
+        $row->execute([':id' => $id]);
+        $enq = $row->fetch();
+        if ($enq && $enq['email'] && send_template_email((string) $enq['email'], 'enquiry-payment', enquiry_email_vars($enq))) {
+            db_update('enquiries', $id, ['emailed_at' => date('Y-m-d H:i:s')]);
+            flash('success', 'Payment details emailed to ' . $enq['email'] . '.');
+        } else {
+            flash('danger', 'Could not send: add an email address first, or check the mailbox under Reminders → Send a test email.');
+        }
+        back('detail');
+    }
     $status = array_key_exists($_POST['status'] ?? '', ENQUIRY_STATUSES) ? $_POST['status'] : 'new';
     db_update('enquiries', $id, [
         'status'      => $status,
         'admin_notes' => mb_substr(trim((string) ($_POST['admin_notes'] ?? '')), 0, 2000) ?: null,
         'phone'       => Health::normalizePhone((string) ($_POST['phone'] ?? '')) ?: null,
         'name'        => mb_substr(trim(strip_tags((string) ($_POST['name'] ?? ''))), 0, 120) ?: null,
+        'email'       => filter_var(trim((string) ($_POST['email'] ?? '')), FILTER_VALIDATE_EMAIL) ?: null,
     ]);
     // Count a sale against the products, so best-seller rankings stay honest.
     if ($status === 'sold' && ($_POST['was'] ?? '') !== 'sold') {
         $row = db()->prepare('SELECT items FROM enquiries WHERE id = :id');
         $row->execute([':id' => $id]);
-        foreach (json_decode((string) $row->fetchColumn(), true) ?: [] as $item) {
+        $buyer = trim((string) ($_POST['name'] ?? ''));
+        foreach (json_decode((string) $row->fetchColumn(), true) ?: [] as $n => $item) {
             db()->prepare('UPDATE products SET sold_count = sold_count + :q, stock_qty = GREATEST(0, stock_qty - :q2) WHERE id = :p')
                 ->execute([':q' => (int) $item['qty'], ':q2' => (int) $item['qty'], ':p' => (int) $item['product_id']]);
+            // A real sale also goes into the live ticker on the site (Admin → Live ticker can hide it).
+            if ($n === 0 && $buyer !== '' && !empty($_POST['to_ticker'])) {
+                db_insert('purchase_feed', ['customer' => ticker_name($buyer), 'town' => clean_text((string) ($_POST['town'] ?? '')) ?: null,
+                    'product_id' => (int) $item['product_id'], 'product_name' => (string) $item['name'], 'enquiry_id' => $id]);
+            }
         }
     }
     flash('success', 'Enquiry E' . $id . ' saved.' . ($status === 'sold' ? ' Now set them up as a patient so their reminders start.' : ''));
@@ -63,7 +87,10 @@ $patientFor = function (?string $phone): ?array {
 ?>
 
 <div class="dash-head">
-  <div><h1>Enquiries</h1><p>Every "Enquire on WhatsApp" press, saved before the customer reaches WhatsApp — so no lead is lost.</p></div>
+  <div><h1>Enquiries</h1><p>Every "Enquire on WhatsApp" press, saved before the customer reaches WhatsApp — so no lead is lost. A press with no name, number or email is just a click: it may never have become a message.</p></div>
+  <form method="post"><?= csrf_field() ?>
+    <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="clear_anonymous" onclick="return confirm('Delete every new enquiry that has no name, cellphone or email?')"><i class="fa-solid fa-broom"></i> Clear anonymous clicks</button>
+  </form>
 </div>
 
 <?= flash_html() ?>
@@ -94,6 +121,13 @@ $patientFor = function (?string $phone): ?array {
           <a class="btn-fc btn-fc--whatsapp btn-fc--sm" target="_blank" rel="noopener"
              href="<?= e(wa_link('Hi ' . ($open['name'] ? explode(' ', $open['name'])[0] : '') . ', thanks for your CureMeds enquiry (E' . $open['id'] . '). ', (string) $open['phone'])) ?>">
             <i class="fa-brands fa-whatsapp"></i> WhatsApp <?= e(Health::displayPhone($open['phone'])) ?></a>
+          <a class="btn-fc btn-fc--ghost btn-fc--sm" target="_blank" rel="noopener"
+             href="<?= e(wa_link('Hi ' . ($open['name'] ? explode(' ', $open['name'])[0] : '') . ", here is how to pay for order E" . $open['id'] . ' (' . format_price_short((float) $open['total']) . "):\n\n" . payment_details_text(), (string) $open['phone'])) ?>">
+            <i class="fa-solid fa-building-columns"></i> WhatsApp payment details</a>
+        <?php endif; ?>
+        <?php if (!empty($open['email'])): ?>
+          <form method="post" class="d-inline"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int) $open['id'] ?>">
+            <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="email_payment"><i class="fa-solid fa-envelope"></i> <?= $open['emailed_at'] ? 'Email payment details again' : 'Email payment details' ?></button></form>
         <?php endif; ?>
         <?php if ($patient): ?>
           <a href="patient.php?id=<?= (int) $patient['id'] ?>&from_enquiry=<?= (int) $open['id'] ?>#medications" class="btn-fc btn-fc--sm"><i class="fa-solid fa-hospital-user"></i> Open <?= e($patient['name']) ?> &amp; add these products</a>
@@ -110,6 +144,8 @@ $patientFor = function (?string $phone): ?array {
         <div class="row g-2">
           <div class="col-6 field"><label>Name</label><input class="input-fc" name="name" value="<?= e((string) $open['name']) ?>"></div>
           <div class="col-6 field"><label>Cellphone</label><input class="input-fc" name="phone" value="<?= e(Health::displayPhone($open['phone'])) ?>" placeholder="Add once they message you"></div>
+          <div class="col-6 field"><label>Email</label><input class="input-fc" type="email" name="email" value="<?= e((string) ($open['email'] ?? '')) ?>" placeholder="For the payment email"></div>
+          <div class="col-6 field"><label>Paying by</label><input class="input-fc" value="<?= e(payment_methods()[$open['payment_method'] ?? '']['label'] ?? 'Not chosen yet') ?>" disabled></div>
         </div>
         <div class="field"><label>Status</label>
           <select class="input-fc" name="status">
@@ -117,6 +153,12 @@ $patientFor = function (?string $phone): ?array {
           </select>
           <div class="field__hint">Marking it <b>Sold</b> counts the units against stock and best-sellers.</div>
         </div>
+        <?php if ($open['status'] !== 'sold'): ?>
+        <div class="row g-2 align-items-end">
+          <div class="col-7 field"><label style="font-weight:500;font-size:.88rem"><input type="checkbox" name="to_ticker" value="1" checked> When sold, show it in the live ticker</label></div>
+          <div class="col-5 field"><input class="input-fc" name="town" placeholder="Their town (optional)"></div>
+        </div>
+        <?php endif; ?>
         <div class="field"><label>Notes</label><textarea class="input-fc" name="admin_notes" rows="3" placeholder="Paid? Courier reference? Follow-up date?"><?= e((string) $open['admin_notes']) ?></textarea></div>
         <div class="d-flex gap-2">
           <button class="btn-fc btn-fc--sm" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>

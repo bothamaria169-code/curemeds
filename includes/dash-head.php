@@ -29,6 +29,7 @@ $nav = match ($dash_role) {
             ['dashboard', 'index.php',     'fa-gauge-high',      'Dashboard', null],
             ['setup',     'setup.php',     'fa-list-check',      'Setup checklist', $stats['setup_left'] ?? 0],
             ['enquiries', 'enquiries.php', 'fa-brands fa-whatsapp', 'Enquiries', $stats['enquiries_new'] ?? 0],
+            ['purchases', 'purchases.php', 'fa-bolt',          'Live ticker', null],
         ],
         'Patients' => [
             ['patients',     'patients.php',     'fa-hospital-user',  'Patients',     null],
@@ -46,6 +47,9 @@ $nav = match ($dash_role) {
             ['banners',    'banners.php',    'fa-images',       'Banners',     null],
             ['blog',       'blog.php',       'fa-newspaper',    'Articles',    null],
             ['newsletter', 'newsletter.php', 'fa-paper-plane',  'Newsletter',  null],
+            ['emails',     'email-templates.php', 'fa-envelope-open-text', 'Email templates', null],
+            ['testimonials', 'testimonials.php', 'fa-comment-dots', 'Testimonials', null],
+            ['gallery',    'gallery.php',    'fa-camera-retro', 'Customer gallery', null],
         ],
         'Admin' => [
             ['users',    'users.php',    'fa-users',   'Accounts', null],
