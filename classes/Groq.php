@@ -190,6 +190,18 @@ final class Groq
         ];
     }
 
+    /** A caption for your own post (Admin → Create a post): a topic in your words, optionally about a product. */
+    public static function topicCaption(string $topic, string $platform, ?array $p = null, string &$error = ''): string
+    {
+        return self::chat([
+            ['role' => 'system', 'content' => 'You write social media posts for ' . SITE_NAME . ', a South African health products and supplements shop '
+                . 'that sells online at ' . SITE_DOMAIN . '. Warm, trustworthy and friendly, never pushy; a few fitting emojis. ' . self::HEALTH_RULES
+                . ' No hashtags. Reply with the post text only.'],
+            ['role' => 'user', 'content' => "Write a $platform post (up to 80 words) about: $topic\nOpen with a hook and end with a gentle invitation to shop online (the link follows your text). Do not mention WhatsApp."
+                . ($p ? "\n\n" . self::productFacts($p) : '')],
+        ], $error, 400, 0.8);
+    }
+
     /** A Facebook or Instagram caption. The site adds the price, shop link and hashtags. */
     public static function socialCaption(array $p, string $platform, string &$error = ''): string
     {

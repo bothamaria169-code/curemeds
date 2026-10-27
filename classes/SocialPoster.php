@@ -292,6 +292,105 @@ final class SocialPoster
         return self::post($account . '/media_publish', ['creation_id' => $container['id'], 'access_token' => $c['token']]);
     }
 
+    /**
+     * Your own photos (Admin → Create a post): one photo, or a carousel of 2–10.
+     * $urls are ImageKit files; Instagram gets each cropped to 4:5, Facebook the original.
+     *
+     * @return array{ok: bool, id: string, error: string}
+     */
+    public static function publishPhotos(string $platform, array $urls, string $caption, int $productId = 0): array
+    {
+        $c    = self::config();
+        $urls = array_slice(array_values($urls), 0, 10);
+        $type = count($urls) > 1 ? 'carousel' : 'photo';
+        if (!self::connected($platform)) {
+            $result = ['ok' => false, 'id' => '', 'error' => self::PLATFORMS[$platform] . ' is not connected.'];
+        } elseif (!$urls) {
+            $result = ['ok' => false, 'id' => '', 'error' => 'No photos.'];
+        } elseif ($platform === 'facebook') {
+            $jpg = array_map(fn($u) => ImageKit::withTransform($u, 'f-jpg,q-90'), $urls);
+            if (count($jpg) === 1) {
+                $result = self::post(self::GRAPH . $c['page_id'] . '/photos', ['url' => $jpg[0], 'caption' => $caption, 'access_token' => $c['token']]);
+            } else {
+                // Facebook albums-in-a-post: upload each photo unpublished, then one feed post that attaches them all.
+                $fields = ['message' => $caption, 'access_token' => $c['token']];
+                foreach ($jpg as $i => $u) {
+                    $p = self::post(self::GRAPH . $c['page_id'] . '/photos', ['url' => $u, 'published' => 'false', 'access_token' => $c['token']]);
+                    if (!$p['ok']) {
+                        $result = ['ok' => false, 'id' => '', 'error' => 'Photo ' . ($i + 1) . ': ' . $p['error']];
+                        break;
+                    }
+                    $fields["attached_media[$i]"] = json_encode(['media_fbid' => $p['id']]);
+                }
+                $result ??= self::post(self::GRAPH . $c['page_id'] . '/feed', $fields);
+            }
+        } else {
+            $ig  = array_map(fn($u) => ImageKit::withTransform($u, ImageKit::PHOTO_TR), $urls);
+            $acc = self::GRAPH . $c['instagram_id'];
+            if (count($ig) === 1) {
+                $result = self::publishInstagram($c, $ig[0], mb_substr($caption, 0, 2100));
+            } else {
+                $children = [];
+                foreach ($ig as $i => $u) {
+                    $child = self::post($acc . '/media', ['image_url' => $u, 'is_carousel_item' => 'true', 'access_token' => $c['token']]);
+                    if (!$child['ok'] || ($wait = self::igWait($c, $child['id'], 20, 2)) !== '') {
+                        $result = ['ok' => false, 'id' => '', 'error' => 'Photo ' . ($i + 1) . ': ' . ($child['ok'] ? $wait : $child['error'])];
+                        break;
+                    }
+                    $children[] = $child['id'];
+                }
+                if (!isset($result)) {
+                    $box = self::post($acc . '/media', ['media_type' => 'CAROUSEL', 'children' => implode(',', $children),
+                                                        'caption' => mb_substr($caption, 0, 2100), 'access_token' => $c['token']]);
+                    $result = !$box['ok'] ? $box : ((($wait = self::igWait($c, $box['id'], 30, 2)) !== '')
+                        ? ['ok' => false, 'id' => '', 'error' => $wait]
+                        : self::post($acc . '/media_publish', ['creation_id' => $box['id'], 'access_token' => $c['token']]));
+                }
+            }
+        }
+        self::log($platform, $productId, $result, $caption, $type, implode(' ', $urls));
+        return $result;
+    }
+
+    /**
+     * Your own video (Admin → Create a post). $videoUrl is a finished MP4.
+     * Instagram shows every video as a reel; on Facebook "reel" goes to Reels
+     * and "video" is a normal Page video post.
+     *
+     * @return array{ok: bool, id: string, error: string}
+     */
+    public static function publishVideo(string $platform, string $videoUrl, string $caption, string $type = 'reel', int $productId = 0): array
+    {
+        $c = self::config();
+        if (!self::connected($platform)) {
+            $result = ['ok' => false, 'id' => '', 'error' => self::PLATFORMS[$platform] . ' is not connected.'];
+        } elseif ($platform === 'instagram') {
+            $result = self::publishInstagram($c, $videoUrl, mb_substr($caption, 0, 2100), true);
+        } elseif ($type === 'reel') {
+            $result = self::publishFacebookReel($c, $videoUrl, $caption);
+        } else {
+            $result = self::post(self::GRAPH . $c['page_id'] . '/videos', ['file_url' => $videoUrl, 'description' => $caption, 'access_token' => $c['token']]);
+        }
+        self::log($platform, $productId, $result, $caption, $type, $videoUrl);
+        return $result;
+    }
+
+    /** Waits for an Instagram container to finish processing. Returns '' when ready, else the reason. */
+    private static function igWait(array $c, string $id, int $tries, int $every): string
+    {
+        for ($try = 0; $try < $tries; $try++) {
+            sleep($every);
+            $status = (string) (self::graphGet($id, ['fields' => 'status_code', 'access_token' => $c['token']])['status_code'] ?? '');
+            if ($status === 'FINISHED') {
+                return '';
+            }
+            if ($status === 'ERROR' || $status === 'EXPIRED') {
+                return 'Instagram could not use the file (' . $status . ')';
+            }
+        }
+        return 'Instagram is still processing it — check the account in a few minutes';
+    }
+
     private static function log(string $platform, int $productId, array $result, string $caption, string $type = 'photo', ?string $media = null): void
     {
         db_insert('social_posts', [

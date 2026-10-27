@@ -101,6 +101,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
             }
             $json(['ok' => $allOk, 'message' => implode("\n", $lines), 'video' => $mp4['url']]);
 
+        // Create a post: your own photos, carousel, video, or a reel made from your photos.
+        case 'compose_caption':
+            $product = $repo->getById((int) ($_POST['product_id'] ?? 0));
+            $topic   = mb_substr(trim((string) ($_POST['topic'] ?? '')), 0, 300) ?: ($product['name'] ?? '');
+            if ($topic === '') {
+                $json(['ok' => false, 'error' => 'Type what the post is about, or choose a product.']);
+            }
+            $err = '';
+            $text = Groq::ready() ? Groq::topicCaption($topic, 'instagram', $product ?: null, $err) : '';
+            $json($text !== '' ? ['ok' => true, 'caption' => $text] : ['ok' => false, 'error' => Groq::ready() ? 'Groq: ' . ($err ?: 'no reply') : 'Set up Groq first.']);
+
+        case 'compose':
+            set_time_limit(600);
+            $type    = in_array($_POST['type'] ?? '', ['photo', 'carousel', 'video', 'reel'], true) ? (string) $_POST['type'] : '';
+            $urls    = array_values(array_filter(array_map('strval', (array) ($_POST['urls'] ?? [])), fn($u) => ImageKit::owns($u)));
+            $caption = trim((string) ($_POST['caption'] ?? ''));
+            $product = $repo->getById((int) ($_POST['product_id'] ?? 0));
+            $wanted  = array_intersect(['facebook', 'instagram', 'tiktok'], (array) ($_POST['platforms'] ?? []));
+            if ($type === '' || !$urls) {
+                $json(['ok' => false, 'error' => 'Upload your files first.']);
+            }
+            if ($caption === '') {
+                $json(['ok' => false, 'error' => 'Write a caption first.']);
+            }
+            if (!$wanted) {
+                $json(['ok' => false, 'error' => 'Tick at least one platform.']);
+            }
+            // The price and shop link go under your words, worded for each platform.
+            $footer = function (string $platform) use ($product): string {
+                if (empty($_POST['add_link'])) {
+                    return '';
+                }
+                if ($product) {
+                    $link = SITE_URL . '/modules/shop/product.php?slug=' . urlencode((string) $product['slug']) . '&utm_source=' . $platform . '&utm_medium=social';
+                    return "\n\n💰 " . format_price_short(Pricing::retail($product)) . "\n"
+                        . ($platform === 'instagram' ? '🛒 Shop online: link in bio · ' . SITE_DOMAIN : '🛒 Buy online: ' . $link);
+                }
+                return "\n\n🛒 Shop online: " . ($platform === 'instagram' ? 'link in bio · ' . SITE_DOMAIN : SITE_URL . '/shop.php');
+            };
+            $lines = [];
+            $allOk = true;
+            $isVideo = in_array($type, ['video', 'reel'], true);
+            $video = null;
+            if ($isVideo) {
+                // Reels made from photos have no sound track to convert; uploaded videos keep theirs.
+                $video = ImageKit::reelUrl($urls[0], 180, '', !empty($_POST['silent']) ? ImageKit::REEL_TR : ImageKit::VIDEO_TR);
+                if (!$video['ok']) {
+                    $json(['ok' => false, 'error' => $video['error']]);
+                }
+            }
+            foreach ($wanted as $platform) {
+                if ($platform === 'tiktok') {
+                    if (!$isVideo) {
+                        $lines[] = 'TikTok: skipped — TikTok drafts take videos only.';
+                        continue;
+                    }
+                    $r = TikTok::connected() ? TikTok::uploadDraft($video['url']) : ['ok' => false, 'error' => 'TikTok is not connected.'];
+                    $lines[] = 'TikTok: ' . ($r['ok'] ? 'draft sent to the TikTok inbox ✓' : $r['error']);
+                } else {
+                    $text = $caption . $footer($platform);
+                    $r = $isVideo
+                        ? SocialPoster::publishVideo($platform, $video['url'], $text, $type, (int) ($product['id'] ?? 0))
+                        : SocialPoster::publishPhotos($platform, $urls, $text, (int) ($product['id'] ?? 0));
+                    $lines[] = SocialPoster::PLATFORMS[$platform] . ': ' . ($r['ok'] ? 'posted ✓' : $r['error']);
+                }
+                $allOk = $allOk && $r['ok'];
+            }
+            $json(['ok' => $allOk, 'message' => implode("\n", $lines)]);
+
         case 'content':
             foreach (['auto_articles', 'auto_reels', 'email_articles', 'auto_news'] as $k) {
                 set_setting($k, !empty($_POST[$k]) ? '1' : '0');
@@ -218,7 +287,7 @@ foreach ($products as $row) {
         'caption' => SocialPoster::caption($p, 'instagram'),
     ];
 }
-$extra_js = [asset('assets/js/reel-maker.js')];
+$extra_js = [asset('assets/js/reel-maker.js'), asset('assets/js/compose.js')];
 ?>
 
 <div class="dash-head">
@@ -391,6 +460,67 @@ $extra_js = [asset('assets/js/reel-maker.js')];
         <?php if ($draft): ?><button class="btn-fc btn-fc--sm" name="action" value="publish" onclick="return confirm('Post this now?')"><i class="fa-solid fa-paper-plane"></i> Post now</button><?php endif; ?>
       </div>
     </form>
+
+    <!-- Create a post: your own media -->
+    <div class="card-fc card-fc--pad mb-3" id="compose" data-csrf="<?= e(csrf_token()) ?>" data-domain="<?= e(SITE_DOMAIN) ?>" data-logo="<?= e($sameOrigin('assets/img/logo/curemeds-icon.png')) ?>">
+      <h2 style="font-size:1.1rem">Create a post <span class="text-muted-3 fw-normal" style="font-size:.85rem">(your own photos and videos)</span></h2>
+      <?php if (!ImageKit::ready()): ?>
+        <div class="alert-fc alert-fc--info"><i class="fa-solid fa-circle-info"></i><span>Set up <a href="#imagekit">ImageKit</a> first: your files are uploaded there before Meta and TikTok fetch them.</span></div>
+      <?php endif; ?>
+      <div class="d-flex gap-2 flex-wrap mb-3" role="radiogroup" aria-label="Post type">
+        <?php foreach (['photo' => ['fa-image', 'Photo'], 'carousel' => ['fa-images', 'Carousel'], 'video' => ['fa-video', 'Video'], 'reel' => ['fa-film', 'Reel from my photos']] as $k => [$icon, $label]): ?>
+          <label class="chip <?= $k === 'photo' ? 'is-on' : '' ?>" style="cursor:pointer"><input type="radio" name="composeType" value="<?= $k ?>" <?= $k === 'photo' ? 'checked' : '' ?> hidden><i class="fa-solid <?= $icon ?> me-1"></i><?= $label ?></label>
+        <?php endforeach; ?>
+      </div>
+      <p class="field__hint" id="composeHelp"></p>
+      <div class="field">
+        <input class="input-fc" type="file" id="composeFiles" multiple>
+      </div>
+      <div id="composeThumbs" class="d-flex gap-2 flex-wrap mb-3"></div>
+
+      <div id="composeReel" hidden>
+        <div class="d-flex gap-3 align-items-start flex-wrap mb-2">
+          <canvas id="composeCanvas" width="1080" height="1920" style="width:160px;aspect-ratio:9/16;border-radius:12px;border:1px solid var(--line);background:#0A1B3D"></canvas>
+          <div style="flex:1;min-width:220px">
+            <div class="field"><label>Text on each photo <span class="text-muted-3 fw-normal">(one line per photo, in order)</span></label>
+              <textarea class="input-fc" id="composeSlides" rows="5" placeholder="Feeling run down?&#10;Support your immune system every day&#10;Vitamin C + Zinc — R159"></textarea></div>
+            <div class="field mb-2"><label>End card</label>
+              <input class="input-fc" id="composeEnd" value="Shop online · <?= e(SITE_DOMAIN) ?>"></div>
+            <label style="font-size:.88rem">Seconds per photo <input class="input-fc d-inline-block" type="number" id="composeSecs" min="2" max="6" value="3" style="width:70px;padding:.3rem .5rem"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-md-6 field"><label for="composeProduct">Link a product <span class="text-muted-3 fw-normal">(optional)</span></label>
+          <select class="input-fc" id="composeProduct">
+            <option value="">No product</option>
+            <?php foreach ($reelData as $r): ?><option value="<?= $r['id'] ?>" data-name="<?= e($r['name']) ?>" data-price="<?= e($r['price']) ?>"><?= e($r['name']) ?></option><?php endforeach; ?>
+          </select></div>
+        <div class="col-md-6 field"><label for="composeSample">Sample caption</label>
+          <select class="input-fc" id="composeSample"><option value="">Choose a starting point…</option></select></div>
+      </div>
+      <div class="field"><label for="composeCaption">Caption</label>
+        <textarea class="input-fc" id="composeCaption" rows="6" placeholder="Write your caption, pick a sample, or let AI write one."></textarea></div>
+      <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+        <input class="input-fc" id="composeTopic" placeholder="What is the post about? e.g. winter immune tips" style="flex:1;min-width:200px">
+        <button type="button" class="btn-fc btn-fc--ghost btn-fc--sm" id="composeAi" <?= Groq::ready() ? '' : 'disabled title="Set up Groq first"' ?>><i class="fa-solid fa-wand-magic-sparkles"></i> Write with AI</button>
+      </div>
+      <label class="d-block mb-2" style="font-size:.9rem"><input type="checkbox" id="composeLink" checked> Add the price and shop link under the caption</label>
+      <div class="d-flex gap-3 mb-2 flex-wrap">
+        <?php foreach (SocialPoster::PLATFORMS as $k => $label): ?>
+          <label style="font-size:.9rem"><input type="checkbox" class="compose-platform" value="<?= $k ?>" <?= SocialPoster::connected($k) ? 'checked' : 'disabled' ?>> <?= $label ?></label>
+        <?php endforeach; ?>
+        <label style="font-size:.9rem"><input type="checkbox" class="compose-platform" value="tiktok" <?= TikTok::connected() ? '' : 'disabled' ?>> TikTok (draft, videos only)</label>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn-fc btn-fc--ghost btn-fc--sm" id="composeSampleData"><i class="fa-solid fa-flask"></i> Fill with sample data</button>
+        <button type="button" class="btn-fc btn-fc--ghost btn-fc--sm" id="composeMake" hidden><i class="fa-solid fa-film"></i> Make reel</button>
+        <a class="btn-fc btn-fc--ghost btn-fc--sm d-none" id="composeDownload"><i class="fa-solid fa-download"></i> Download</a>
+        <button type="button" class="btn-fc btn-fc--sm" id="composePost" <?= ImageKit::ready() ? '' : 'disabled' ?>><i class="fa-solid fa-paper-plane"></i> Post</button>
+      </div>
+      <p class="field__hint mt-2 mb-0" id="composeStatus" style="white-space:pre-line"></p>
+    </div>
 
     <!-- Reel maker -->
     <div class="card-fc card-fc--pad mb-3" id="reel" data-csrf="<?= e(csrf_token()) ?>" data-wa="<?= e(Health::displayPhone(whatsapp_number())) ?>" data-domain="<?= e(SITE_DOMAIN) ?>" data-logo="<?= e($sameOrigin('assets/img/logo/curemeds-icon.png')) ?>">

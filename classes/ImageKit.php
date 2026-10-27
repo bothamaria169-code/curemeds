@@ -18,6 +18,8 @@ final class ImageKit
     public const PHOTO_TR = 'w-1080,h-1350,fo-auto,f-jpg,q-90';
     /** Reel: plain H.264 MP4, no audio track; wait for the encode instead of redirecting to the original. */
     public const REEL_TR  = 'f-mp4,vc-h264,ac-none,ov-redirect_false';
+    /** Your own videos keep their sound (AAC). */
+    public const VIDEO_TR = 'f-mp4,vc-h264,ac-aac,ov-redirect_false';
 
     /** @return array{public_key: string, private_key: string, endpoint: string} */
     public static function config(): array
@@ -113,12 +115,12 @@ final class ImageKit
      *
      * @return array{ok: bool, url: string, error: string}
      */
-    public static function reelUrl(string $fileUrl, int $seconds = 120, string $layers = ''): array
+    public static function reelUrl(string $fileUrl, int $seconds = 120, string $layers = '', string $tr = self::REEL_TR): array
     {
         $path = (string) parse_url($fileUrl, PHP_URL_PATH);
         $base = preg_match('/\.(mp4|mov)$/i', $path) ? $fileUrl : rtrim($fileUrl, '/') . '/ik-video.mp4';
         // Optional photo/text layers first, then the MP4 encode as the last step of the chain.
-        $url  = self::withTransform($base, ($layers !== '' ? $layers . ':' : '') . self::REEL_TR);
+        $url  = self::withTransform($base, ($layers !== '' ? $layers . ':' : '') . $tr);
         $until = time() + $seconds;
         do {
             $ch = curl_init($url);
