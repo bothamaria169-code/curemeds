@@ -14,8 +14,8 @@ final class ImageKit
     private const UPLOAD = 'https://upload.imagekit.io/api/v1/files/upload';
     private const API    = 'https://api.imagekit.io/v1/';
 
-    /** Instagram photo: 4:5 portrait JPEG on white, the size Instagram shows in the feed. */
-    public const PHOTO_TR = 'w-1080,h-1350,cm-pad_resize,bg-FFFFFF,f-jpg,q-90';
+    /** Instagram photo: 4:5 portrait JPEG filling the frame (landscape photos are cropped around the subject, not padded with white). */
+    public const PHOTO_TR = 'w-1080,h-1350,fo-auto,f-jpg,q-90';
     /** Reel: plain H.264 MP4, no audio track; wait for the encode instead of redirecting to the original. */
     public const REEL_TR  = 'f-mp4,vc-h264,ac-none,ov-redirect_false';
 

@@ -204,7 +204,7 @@ final class NewsEngine
             // Instagram needs a photo of ours; without a product there is nothing to post there.
             if ($platform === 'instagram' && !$products) { continue; }
             $caption = '📰 ' . $teaser . "\n\n" . ($platform === 'facebook' ? '📖 Read the brief: ' . $link : '📖 Full brief: link in bio · ' . SITE_DOMAIN)
-                . "\n💬 WhatsApp: " . Health::displayPhone(whatsapp_number()) . "\n\n#CureMeds #HealthNews #SouthAfrica";
+                . "\n🛒 Shop online: " . SITE_DOMAIN . "\n\n#CureMeds #HealthNews #SouthAfrica";
             $r = $platform === 'facebook'
                 ? SocialPoster::publishLink($products[0] ?? ['id' => 0, 'name' => $title], $link, $caption)
                 : SocialPoster::publish('instagram', $products[0], $caption, 'article');

@@ -141,7 +141,7 @@ final class ContentEngine
             if (!SocialPoster::connected($platform)) { continue; }
             $caption = $teaser . "\n\n" . ($platform === 'facebook' ? '📖 Read it: ' . $link : '📖 Full article: link in bio · ' . SITE_DOMAIN)
                 . "\n🛒 Featured: " . implode(', ', array_column($products, 'name'))
-                . "\n💬 WhatsApp: " . Health::displayPhone(whatsapp_number()) . "\n\n#CureMeds #HealthSA #Wellness";
+                . "\n🛒 Shop online: " . SITE_DOMAIN . "\n\n#CureMeds #HealthSA #Wellness";
             $r = $platform === 'facebook'
                 ? SocialPoster::publishLink($products[0], $link, $caption)
                 : SocialPoster::publish('instagram', $products[0], $caption, 'article');
@@ -235,11 +235,11 @@ final class ContentEngine
         // 4 · 10–12s: how to order.
         $L[] = self::block('FFFFFF', 1080, 1920, 0, 0, 10, self::LENGTH);
         $L[] = self::image(self::layerSource($logo), 'w-800', 140, 420, 10, self::LENGTH);
-        $L[] = self::text('Order on WhatsApp', 80, '0A1B3D', 70, 900, 10, self::LENGTH, $wrap);
-        $L[] = self::text(Health::displayPhone(whatsapp_number()), 70, 'FFFFFF', 250, 1060, 10, self::LENGTH, ['bg-1557D0', 'pa-24_50', 'r-60']);
-        $L[] = self::text('Courier to your door, nationwide', 46, '3A4D72', 70, 1300, 10, self::LENGTH, $wrap);
-        $L[] = self::text(SITE_DOMAIN, 46, '1557D0', 70, 1390, 10, self::LENGTH, $wrap);
-        return implode(',', $L);
+        $L[] = self::text('Shop online', 80, '0A1B3D', 70, 900, 10, self::LENGTH, $wrap);
+        $L[] = self::text(SITE_DOMAIN, 70, 'FFFFFF', 190, 1060, 10, self::LENGTH, ['bg-1557D0', 'pa-24_50', 'r-60']);
+        $L[] = self::text('Courier or Pudo locker, nationwide', 46, '3A4D72', 70, 1300, 10, self::LENGTH, $wrap);
+        // Each layer is its own step: ImageKit keeps only the last of several layers joined by commas.
+        return implode(':', $L);
     }
 
     /** The finished reel URL for a product (layers on the base video, encoded to MP4). */

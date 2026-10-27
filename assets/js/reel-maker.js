@@ -109,14 +109,13 @@
     });
     ctx.globalAlpha = 1;
   }
-  // Scene 4: how to order.
+  // Scene 4: where to buy.
   function order(t) {
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
     if (images.logo) contain(images.logo, 140, 380, 800, 320, 0.95 + 0.05 * ease(t / 0.8));
-    text(['Order on WhatsApp'], W / 2, 960, `600 84px ${SERIF}`, C.forest, 90);
-    pill(card.dataset.wa, W / 2, 1110, `800 70px ${SANS}`, C.leaf, '#fff', 60, 140);
-    text(['Courier to your door, nationwide'], W / 2, 1320, `600 46px ${SANS}`, C.grey, 56);
-    text([card.dataset.domain], W / 2, 1420, `800 46px ${SANS}`, C.leaf, 56);
+    text(['Shop online'], W / 2, 960, `600 84px ${SERIF}`, C.forest, 90);
+    pill(card.dataset.domain, W / 2, 1110, `800 70px ${SANS}`, C.leaf, '#fff', 60, 140);
+    text(['Courier or Pudo locker, nationwide'], W / 2, 1320, `600 46px ${SANS}`, C.grey, 56);
   }
 
   const scenes = [[0, 3.2, intro], [3.2, 7, pack], [7, 10, price], [10, LENGTH, order]];

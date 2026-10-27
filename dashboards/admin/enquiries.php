@@ -14,6 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
         flash('success', 'Enquiry E' . $id . ' deleted.');
         redirect('dashboards/admin/enquiries.php');
     }
+    if (($_POST['action'] ?? '') === 'clear_all') {
+        $n = db()->exec('DELETE FROM enquiries');
+        flash('success', $n . ' enquir' . ($n === 1 ? 'y' : 'ies') . ' deleted. The list starts again from zero.');
+        redirect('dashboards/admin/enquiries.php');
+    }
     if (($_POST['action'] ?? '') === 'clear_anonymous') {
         $n = db()->exec("DELETE FROM enquiries WHERE status = 'new' AND (name IS NULL OR name = '') AND (phone IS NULL OR phone = '') AND (email IS NULL OR email = '')");
         flash('success', $n . ' button click' . ($n === 1 ? '' : 's') . ' without a name, number or email deleted.');
@@ -98,9 +103,10 @@ $patientFor = function (?string $phone): ?array {
 ?>
 
 <div class="dash-head">
-  <div><h1>Enquiries</h1><p>Every "Enquire on WhatsApp" press, saved before the customer reaches WhatsApp — so no lead is lost. A press with no name, number or email is just a click: it may never have become a message.</p></div>
-  <form method="post"><?= csrf_field() ?>
+  <div><h1>Enquiries</h1><p>Customers who asked a question on WhatsApp instead of ordering online. Online orders are under <a href="orders.php">Orders</a>.</p></div>
+  <form method="post" class="d-flex gap-2 flex-wrap"><?= csrf_field() ?>
     <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="clear_anonymous" onclick="return confirm('Delete every new enquiry that has no name, cellphone or email?')"><i class="fa-solid fa-broom"></i> Clear anonymous clicks</button>
+    <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="clear_all" onclick="return confirm('Delete ALL enquiries and start from zero? This cannot be undone.')"><i class="fa-solid fa-trash-can"></i> Delete all enquiries</button>
   </form>
 </div>
 

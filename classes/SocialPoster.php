@@ -172,7 +172,7 @@ final class SocialPoster
         }
     }
 
-    /** A JPEG on a public address — Instagram accepts nothing else. ImageKit pads it to 4:5. */
+    /** A JPEG on a public address — Instagram accepts nothing else. ImageKit crops it to 4:5. */
     public static function photoUrl(array $product): string
     {
         $local = (string) ($product['featured_image'] ?? '');
@@ -182,18 +182,17 @@ final class SocialPoster
         return product_image($local ?: null);
     }
 
-    /** The finished caption: AI (or template) text plus price, WhatsApp and hashtags. */
+    /** The finished caption: AI (or template) text plus price, shop link and hashtags. */
     public static function caption(array $p, string $platform, string $body = ''): string
     {
         if (trim($body) === '') {
             $body = '💙 ' . $p['name'] . ($p['pack_size'] ? ' (' . $p['pack_size'] . ')' : '') . "\n\n" . strip_tags((string) $p['short_desc']);
         }
         $price = Pricing::retail($p);
-        $wa    = Health::displayPhone(whatsapp_number());
         $link  = SITE_URL . '/modules/shop/product.php?slug=' . urlencode((string) $p['slug']) . '&utm_source=' . $platform . '&utm_medium=social';
-        $cta   = $platform === 'instagram' ? '🔗 Link in bio · ' . SITE_DOMAIN : '🔗 ' . $link;
+        $cta   = $platform === 'instagram' ? '🛒 Shop online: link in bio · ' . SITE_DOMAIN : '🛒 Buy online: ' . $link;
         $tags  = '#CureMeds #HealthSA #Wellness #Supplements #SouthAfrica' . (!empty($p['category_name']) ? ' #' . preg_replace('/[^A-Za-z]/', '', ucwords((string) $p['category_name'])) : '');
-        return trim($body) . "\n\n💰 " . format_price_short($price) . "\n💬 Order on WhatsApp: " . $wa . "\n" . $cta
+        return trim($body) . "\n\n💰 " . format_price_short($price) . "\n" . $cta . "\n🚚 Courier or Pudo locker, nationwide"
             . "\n\n" . $tags . "\n\nSupplements are not a substitute for prescribed medication.";
     }
 

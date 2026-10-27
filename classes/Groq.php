@@ -190,16 +190,16 @@ final class Groq
         ];
     }
 
-    /** A Facebook or Instagram caption. The site adds the price, WhatsApp number and hashtags. */
+    /** A Facebook or Instagram caption. The site adds the price, shop link and hashtags. */
     public static function socialCaption(array $p, string $platform, string &$error = ''): string
     {
         $length = $platform === 'instagram' ? 'up to 70 words' : 'up to 90 words';
         return self::chat([
             ['role' => 'system', 'content' => 'You write social media posts for ' . SITE_NAME . ', a South African health products and supplements shop '
-                . 'where customers order on WhatsApp. Warm, trustworthy and friendly, never pushy; a few fitting emojis. ' . self::HEALTH_RULES
+                . 'where customers order online at ' . SITE_DOMAIN . '. Warm, trustworthy and friendly, never pushy; a few fitting emojis. ' . self::HEALTH_RULES
                 . ' No hashtags. Reply with the post text only.'],
             ['role' => 'user', 'content' => "Write a $platform post ($length) about this product. Open with a hook, give the key facts, "
-                . "and end by inviting people to message us on WhatsApp to order.\n\n" . self::productFacts($p)],
+                . "and end by inviting people to order online (the link follows your text). Do not mention WhatsApp.\n\n" . self::productFacts($p)],
         ], $error, 400, 0.8);
     }
 
