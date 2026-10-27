@@ -297,7 +297,7 @@ final class SocialPoster
     {
         db_insert('social_posts', [
             'platform'   => $platform,
-            'product_id' => $productId,
+            'product_id' => $productId ?: null,
             'status'     => $result['ok'] ? 'posted' : 'failed',
             'remote_id'  => $result['id'] !== '' ? mb_substr($result['id'], 0, 120) : null,
             'error'      => $result['error'] !== '' ? mb_substr($result['error'], 0, 255) : null,

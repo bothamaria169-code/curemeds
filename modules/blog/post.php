@@ -64,7 +64,10 @@ include __DIR__ . '/../../includes/header.php';
   <div class="container container--narrow">
     <?php if ($post['image']): ?>
       <img src="<?= e(product_image($post['image'])) ?>" alt="<?= e($post['title']) ?>"
-           style="width:100%;border-radius:var(--r-xl);margin-bottom:2rem;aspect-ratio:16/8;object-fit:cover;background:var(--paper-2)">
+           style="width:100%;border-radius:var(--r-xl);margin-bottom:<?= !empty($post['image_credit']) ? '.4rem' : '2rem' ?>;aspect-ratio:16/8;object-fit:cover;background:var(--paper-2)">
+      <?php if (!empty($post['image_credit'])): ?>
+        <p class="text-muted-3 mb-4" style="font-size:.75rem"><?= $post['image_credit'] ?></p>
+      <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($post['excerpt']): ?>
@@ -86,7 +89,10 @@ include __DIR__ . '/../../includes/header.php';
     }
     ?>
     <?php if ($postProducts): ?>
-      <h2 class="mt-5" style="font-size:1.35rem">Shop the products in this article</h2>
+      <h2 class="mt-5" style="font-size:1.35rem"><?= !empty($post['source_url']) ? 'From our shop: everyday wellness support' : 'Shop the products in this article' ?></h2>
+      <?php if (!empty($post['source_url'])): ?>
+        <p class="text-muted-2" style="font-size:.86rem">These supplements support general wellness. They are not part of the research above and do not treat, cure or prevent any disease — keep taking the treatment your clinic gives you.</p>
+      <?php endif; ?>
       <div class="row g-3 mt-1">
         <?php foreach ($postProducts as $product): ?>
           <div class="col-6 col-md-4"><?php include __DIR__ . '/../../includes/product-card.php'; ?></div>

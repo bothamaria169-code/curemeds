@@ -22,6 +22,7 @@ require_once __DIR__ . '/../classes/TikTok.php';
 require_once __DIR__ . '/../classes/Pudo.php';
 require_once __DIR__ . '/../classes/GoogleAuth.php';
 require_once __DIR__ . '/../classes/ContentEngine.php';
+require_once __DIR__ . '/../classes/NewsEngine.php';
 
 // ── One-time messages across a redirect ──────────────────────────────────
 /** Queues a message for the next page view. $type: success | danger | warn | info */

@@ -45,8 +45,12 @@ final class ContentEngine
     {
         $out = [];
         if (get_setting('auto_articles', '0') === '1') {
-            $done = (int) db()->query("SELECT COUNT(*) FROM blogs WHERE auto_generated = 1 AND created_at >= CURDATE()")->fetchColumn();
+            $done = (int) db()->query("SELECT COUNT(*) FROM blogs WHERE auto_generated = 1 AND source_url IS NULL AND created_at >= CURDATE()")->fetchColumn();
             $out['article'] = $done < self::dueByNow((int) get_setting('articles_per_day', '1')) ? self::article() : 'not due';
+        }
+        if (get_setting('auto_news', '0') === '1') {
+            $done = (int) db()->query("SELECT COUNT(*) FROM blogs WHERE auto_generated = 1 AND source_url IS NOT NULL AND created_at >= CURDATE()")->fetchColumn();
+            $out['news'] = $done < self::dueByNow((int) get_setting('news_per_day', '2')) ? NewsEngine::article() : 'not due';
         }
         if (get_setting('auto_reels', '0') === '1') {
             // After a failed attempt, wait 20 minutes before building another reel.

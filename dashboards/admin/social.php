@@ -102,11 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
             $json(['ok' => $allOk, 'message' => implode("\n", $lines), 'video' => $mp4['url']]);
 
         case 'content':
-            foreach (['auto_articles', 'auto_reels', 'email_articles'] as $k) {
+            foreach (['auto_articles', 'auto_reels', 'email_articles', 'auto_news'] as $k) {
                 set_setting($k, !empty($_POST[$k]) ? '1' : '0');
             }
             set_setting('articles_per_day', (string) max(1, min(4, (int) ($_POST['articles_per_day'] ?? 1))));
             set_setting('reels_per_day', (string) max(1, min(12, (int) ($_POST['reels_per_day'] ?? 6))));
+            set_setting('news_per_day', (string) max(1, min(6, (int) ($_POST['news_per_day'] ?? 2))));
+            if (isset($_POST['news_feeds'])) {
+                set_setting('news_feeds', trim((string) $_POST['news_feeds']) ?: NewsEngine::DEFAULT_FEEDS);
+            }
+            $key = trim((string) ($_POST['unsplash_access_key'] ?? ''));
+            if ($key !== '' && !str_contains($key, '•')) {
+                set_setting('unsplash_access_key', $key);
+            }
             $start = max(5, min(20, (int) ($_POST['content_start_hour'] ?? 8)));
             set_setting('content_start_hour', (string) $start);
             set_setting('content_end_hour', (string) max($start + 1, min(23, (int) ($_POST['content_end_hour'] ?? 20))));
@@ -116,6 +124,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
         case 'article_now':
             set_time_limit(300);
             flash('info', e(ContentEngine::article()));
+            back('content');
+
+        case 'news_now':
+            set_time_limit(300);
+            flash('info', e(NewsEngine::article()));
             back('content');
 
         case 'reel_now':
@@ -423,12 +436,29 @@ $extra_js = [asset('assets/js/reel-maker.js')];
         <label><input type="checkbox" name="email_articles" value="1" <?= get_setting('email_articles', '0') === '1' ? 'checked' : '' ?>> Also email each new article to newsletter subscribers</label>
         <label><input type="checkbox" name="auto_reels" value="1" <?= get_setting('auto_reels', '0') === '1' ? 'checked' : '' ?>> Post
           <input class="input-fc d-inline-block" type="number" min="1" max="12" name="reels_per_day" value="<?= (int) get_setting('reels_per_day', '6') ?>" style="width:70px;padding:.3rem .5rem"> product reels a day</label>
+        <label><input type="checkbox" name="auto_news" value="1" <?= get_setting('auto_news', '0') === '1' ? 'checked' : '' ?>> Write
+          <input class="input-fc d-inline-block" type="number" min="1" max="6" name="news_per_day" value="<?= (int) get_setting('news_per_day', '2') ?>" style="width:70px;padding:.3rem .5rem"> health news brief(s) a day from the feeds below, linking matching products, and share them</label>
         <span>Between
           <select class="input-fc d-inline-block" name="content_start_hour" style="width:95px;padding:.3rem .5rem"><?php for ($h = 5; $h <= 20; $h++): ?><option value="<?= $h ?>" <?= (int) get_setting('content_start_hour', '8') === $h ? 'selected' : '' ?>><?= sprintf('%02d:00', $h) ?></option><?php endfor; ?></select>
           and <select class="input-fc d-inline-block" name="content_end_hour" style="width:95px;padding:.3rem .5rem"><?php for ($h = 6; $h <= 23; $h++): ?><option value="<?= $h ?>" <?= (int) get_setting('content_end_hour', '20') === $h ? 'selected' : '' ?>><?= sprintf('%02d:00', $h) ?></option><?php endfor; ?></select></span>
       </div>
+      <details class="mb-3">
+        <summary style="cursor:pointer;font-size:.9rem;font-weight:600">News feeds &amp; Unsplash photos</summary>
+        <div class="field mt-2">
+          <label>Unsplash access key <span class="text-muted-3 fw-normal">(photos for news briefs)</span></label>
+          <?php $uk = (string) get_setting('unsplash_access_key', ''); ?>
+          <input class="input-fc" name="unsplash_access_key" value="<?= $uk !== '' ? '••••••••' . e(substr($uk, -4)) : '' ?>" autocomplete="off" spellcheck="false">
+          <div class="field__hint">unsplash.com/developers → Your apps → New Application → copy the <b>Access Key</b>. Free: 50 photos an hour. Photos are credited on the article as Unsplash requires.</div>
+        </div>
+        <div class="field mb-0">
+          <label>Feeds — one per line: <code>Label | category-slug | feed URL</code></label>
+          <textarea class="input-fc" name="news_feeds" rows="7" style="font-size:.78rem;font-family:monospace" spellcheck="false"><?= e((string) get_setting('news_feeds', NewsEngine::DEFAULT_FEEDS)) ?></textarea>
+          <div class="field__hint">The category slug picks which products the brief links to. Any RSS feed works; for a new topic use <code>https://news.google.com/rss/search?q=your+words&amp;hl=en-ZA&amp;gl=ZA&amp;ceid=ZA:en</code>. Each brief credits and links its source and never claims a product treats anything.</div>
+        </div>
+      </details>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn-fc btn-fc--sm">Save</button>
+        <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="news_now" onclick="return confirm('Write and publish a news brief now?')"><i class="fa-solid fa-rss"></i> News brief now</button>
         <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="article_now" onclick="return confirm('Write and publish an article now?')"><i class="fa-solid fa-newspaper"></i> Article now</button>
         <button class="btn-fc btn-fc--ghost btn-fc--sm" name="action" value="reel_now" onclick="return confirm('Build and post a reel now? It takes 1-3 minutes.')"><i class="fa-solid fa-film"></i> Reel now</button>
       </div>

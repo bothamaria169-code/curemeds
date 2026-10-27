@@ -41,6 +41,7 @@ if ($nl_gate === 'locked') {
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/logo/favicon.png">
+<link rel="alternate" type="application/rss+xml" title="<?= e(SITE_NAME) ?> — Health news &amp; guides" href="<?= SITE_URL ?>/rss.xml">
 <link rel="apple-touch-icon" href="<?= SITE_URL ?>/assets/img/logo/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

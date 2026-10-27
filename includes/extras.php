@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   - the weekly product newsletter
  */
 
-const CUREMEDS_SCHEMA_VERSION = 3;
+const CUREMEDS_SCHEMA_VERSION = 4;
 
 function curemeds_migrate(): void
 {
@@ -164,6 +164,17 @@ function curemeds_migrate(): void
     } catch (Throwable $e) {
         $ok = false;
         error_log('CureMeds upgrade step 3 failed: ' . $e->getMessage());
+    }
+    try {
+        if ($current < 4) {
+            // Health news briefs (classes/NewsEngine.php): where the story came from, and the photo credit.
+            $addCol('blogs', 'source_url', 'VARCHAR(600) DEFAULT NULL');
+            $addCol('blogs', 'source_name', 'VARCHAR(120) DEFAULT NULL');
+            $addCol('blogs', 'image_credit', 'VARCHAR(400) DEFAULT NULL');
+        }
+    } catch (Throwable $e) {
+        $ok = false;
+        error_log('CureMeds upgrade step 4 failed: ' . $e->getMessage());
     }
     // Only a clean run is recorded; otherwise every step (they are all safe to repeat) runs again next time.
     if ($ok) {
