@@ -31,6 +31,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
         }
         back('detail');
     }
+    if (($_POST['action'] ?? '') === 'book_pudo') {
+        $row = db()->prepare('SELECT * FROM enquiries WHERE id = :id');
+        $row->execute([':id' => $id]);
+        try {
+            $res = Pudo::book($row->fetch() ?: []);
+            flash('success', 'Booked with Pudo — waybill ' . e((string) ($res['custom_tracking_reference'] ?? $res['short_tracking_reference'] ?? '(pending)')) . '. Pudo will SMS the customer when it is in the locker.');
+        } catch (Throwable $e) {
+            flash('danger', e($e->getMessage()));
+        }
+        back('detail');
+    }
     $status = array_key_exists($_POST['status'] ?? '', ENQUIRY_STATUSES) ? $_POST['status'] : 'new';
     db_update('enquiries', $id, [
         'status'      => $status,
@@ -113,9 +124,30 @@ $patientFor = function (?string $phone): ?array {
           <tr><td><?= e($i['name']) ?><?= !empty($i['pack']) ? '<div class="text-muted-3" style="font-size:.75rem">' . e($i['pack']) . '</div>' : '' ?></td>
               <td><?= (int) $i['qty'] ?></td><td class="text-end money"><?= format_price_short((float) $i['price'] * (int) $i['qty']) ?></td></tr>
         <?php endforeach; ?>
-          <tr><td colspan="2"><b>Total quoted</b></td><td class="text-end money"><b><?= format_price_short((float) $open['total']) ?></b></td></tr>
+          <?php if (($open['delivery_method'] ?? '') === 'pudo'): ?>
+          <tr><td colspan="2">Pudo locker delivery</td><td class="text-end money"><?= (float) $open['shipping_fee'] > 0 ? format_price_short((float) $open['shipping_fee']) : 'Free' ?></td></tr>
+          <?php endif; ?>
+          <tr><td colspan="2"><b>Total quoted</b></td><td class="text-end money"><b><?= format_price_short((float) $open['total'] + (float) ($open['shipping_fee'] ?? 0)) ?></b></td></tr>
         </tbody>
       </table>
+      <?php if (($open['delivery_method'] ?? '') === 'pudo'): ?>
+      <div class="card-fc card-fc--pad mt-3" style="background:var(--leaf-wash);border-color:transparent">
+        <b><i class="fa-solid fa-box-archive me-1"></i> Pudo locker <?= e((string) $open['pudo_locker_code']) ?></b>
+        <div style="font-size:.86rem;color:var(--text-2)"><?= e((string) $open['pudo_locker_name']) ?></div>
+        <?php if (!empty($open['courier_waybill'])): ?>
+          <div class="mt-2" style="font-size:.88rem">Waybill <b><?= e((string) $open['courier_waybill']) ?></b><?= !empty($open['courier_pin']) ? ' · drop-off PIN <b>' . e((string) $open['courier_pin']) . '</b>' : '' ?></div>
+          <div class="field__hint mb-0">Drop the parcel at your locker with the PIN, or wait for collection. Print the waybill at customer.pudo.co.za.</div>
+        <?php elseif (Pudo::configured()): ?>
+          <form method="post" class="mt-2" onsubmit="return confirm('Book this parcel with Pudo now? Pudo charges your account for it.')">
+            <?= csrf_field() ?><input type="hidden" name="id" value="<?= (int) $open['id'] ?>">
+            <button class="btn-fc btn-fc--sm" name="action" value="book_pudo"><i class="fa-solid fa-box-archive"></i> Book Pudo shipment</button>
+            <div class="field__hint mb-0">Book once they've paid. Needs their name and cellphone — Pudo SMSes the collection PIN.</div>
+          </form>
+        <?php else: ?>
+          <div class="field__hint mb-0">Add the Pudo API key in Settings to book from here.</div>
+        <?php endif; ?>
+      </div>
+      <?php endif; ?>
       <div class="d-flex gap-2 flex-wrap mt-3">
         <?php if ($open['phone']): ?>
           <a class="btn-fc btn-fc--whatsapp btn-fc--sm" target="_blank" rel="noopener"
@@ -190,7 +222,7 @@ $patientFor = function (?string $phone): ?array {
         <td style="white-space:nowrap"><?= date('j M, H:i', strtotime($r['created_at'])) ?></td>
         <td><?= e($r['name'] ?: '—') ?><div class="text-muted-3" style="font-size:.75rem"><?= e(Health::displayPhone($r['phone'])) ?></div></td>
         <td style="font-size:.84rem;max-width:340px"><?= e(implode(', ', array_map(fn($i) => $i['qty'] . '× ' . $i['name'], $items))) ?></td>
-        <td class="money"><?= format_price_short((float) $r['total']) ?></td>
+        <td class="money"><?= format_price_short((float) $r['total']) ?><?= ($r['delivery_method'] ?? '') === 'pudo' ? '<div class="text-muted-3" style="font-size:.72rem"><i class="fa-solid fa-box-archive"></i> Pudo' . (!empty($r['courier_waybill']) ? ' · booked' : '') . '</div>' : '' ?></td>
         <td><span class="pill pill--<?= ENQUIRY_STATUSES[$r['status']] ?>"><?= ucfirst($r['status']) ?></span></td>
         <td><a href="?id=<?= (int) $r['id'] ?><?= $status ? '&status=' . $status : '' ?>#detail" class="btn-fc btn-fc--ghost btn-fc--sm">Open</a></td>
       </tr>

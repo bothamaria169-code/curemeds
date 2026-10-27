@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   - the weekly product newsletter
  */
 
-const CUREMEDS_SCHEMA_VERSION = 1;
+const CUREMEDS_SCHEMA_VERSION = 2;
 
 function curemeds_migrate(): void
 {
@@ -114,6 +114,22 @@ function curemeds_migrate(): void
             $pdo->exec("DELETE FROM enquiries WHERE status = 'new' AND (name IS NULL OR name = '') AND (phone IS NULL OR phone = '')");
 
             import_catalogue($pdo);
+        }
+        if ($current < 2) {
+            // Pudo lockers on the enquiry list (classes/Pudo.php).
+            $addCol('enquiries', 'delivery_method', "VARCHAR(20) NOT NULL DEFAULT 'delivery'");
+            $addCol('enquiries', 'pudo_locker_code', 'VARCHAR(20) DEFAULT NULL');
+            $addCol('enquiries', 'pudo_locker_name', 'VARCHAR(255) DEFAULT NULL');
+            $addCol('enquiries', 'shipping_fee', 'DECIMAL(10,2) NOT NULL DEFAULT 0.00');
+            $addCol('enquiries', 'courier_waybill', 'VARCHAR(60) DEFAULT NULL');
+            $addCol('enquiries', 'courier_shipment', 'VARCHAR(60) DEFAULT NULL');
+            $addCol('enquiries', 'courier_pin', 'VARCHAR(20) DEFAULT NULL');
+            foreach (['pudo_enabled' => '1', 'pudo_source_type' => 'locker', 'pudo_box' => 'S', 'pudo_fixed_fee' => '0',
+                      'pudo_markup' => '0', 'pudo_fallback_fee' => '65', 'pudo_free_threshold' => '1', 'pudo_from_province' => 'GP'] as $k => $v) {
+                if (get_setting($k) === null) {
+                    set_setting($k, $v);
+                }
+            }
         }
         set_setting('cm_schema_version', (string) CUREMEDS_SCHEMA_VERSION);
     } catch (Throwable $e) {

@@ -20,6 +20,26 @@ $groups = [
         'free_shipping_threshold' => ['Free delivery from', 'number', 'Enquiry total at which courier delivery is quoted as free.'],
         'shipping_flat_rate'      => ['Courier flat rate', 'number'],
     ],
+    'Pudo lockers (The Courier Guy) — customers pick a locker on a map in the enquiry list' => [
+        'pudo_enabled'        => ['Offer Pudo lockers', 'toggle', 'Shows in the enquiry list once an API key is saved.'],
+        'pudo_api_key'        => ['Pudo API key', 'secret', 'customer.pudo.co.za → Settings → API keys → Create API Key.'],
+        'pudo_sandbox'        => ['Sandbox (testing) mode', 'toggle', 'Only with a key from sandbox.pudo.co.za. Leave off for real parcels.'],
+        'pudo_source_type'    => ['Parcels start from', 'select', 'Locker = you drop parcels at a Pudo locker (cheapest). Address = Pudo collects from your door.', ['locker' => 'A locker I drop parcels at', 'door' => 'My street address (collection)']],
+        'pudo_source_locker'  => ['Drop-off locker code', 'text', 'Your nearest locker, e.g. CG54. Find the code on the map in the enquiry list or at pudo.co.za.'],
+        'pudo_from_street'    => ['Collection street address', 'text', 'Only when parcels start from your address.'],
+        'pudo_from_suburb'    => ['Collection suburb', 'text'],
+        'pudo_from_city'      => ['Collection city', 'text'],
+        'pudo_from_postcode'  => ['Collection postal code', 'text'],
+        'pudo_from_province'  => ['Collection province', 'select', null, ['GP' => 'Gauteng', 'WC' => 'Western Cape', 'KZN' => 'KwaZulu-Natal', 'EC' => 'Eastern Cape', 'FS' => 'Free State', 'LP' => 'Limpopo', 'MP' => 'Mpumalanga', 'NW' => 'North West', 'NC' => 'Northern Cape']],
+        'pudo_box'            => ['Box size you usually send', 'select', 'Rates are quoted for this size.', array_map(fn($b) => $b['label'] . ' — ' . $b['dims'] . ', up to ' . $b['kg'] . ' kg', Pudo::BOXES)],
+        'pudo_fixed_fee'      => ['Fixed locker fee', 'number', '0 = charge the live Pudo rate. Set e.g. 60 for one flat price everywhere.'],
+        'pudo_markup'         => ['Add to the live rate', 'number', 'Covers packaging. Ignored when a fixed fee is set.'],
+        'pudo_fallback_fee'   => ['Fee if Pudo cannot quote', 'number', 'Used when the rate API is down.'],
+        'pudo_free_threshold' => ['Free over the free-delivery amount', 'toggle', 'Same amount as courier delivery above.'],
+        'pudo_sender_name'    => ['Sender name', 'text', 'On the waybill. Empty = the site name.'],
+        'pudo_sender_email'   => ['Sender email', 'text', 'Your Pudo account email.'],
+        'pudo_sender_phone'   => ['Sender cellphone', 'text', 'Pudo sends the drop-off PIN here.'],
+    ],
     'Payment (shown in the cart, on product pages and in the payment email)' => [
         'eft_enabled'         => ['Accept EFT / bank deposit', 'toggle'],
         'bank_name'           => ['Bank', 'text', 'e.g. Standard Bank, FNB, Capitec.'],
@@ -48,14 +68,30 @@ $groups = [
 
 $flash = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_token'] ?? ''))) {
+    $pudoBefore = get_setting('pudo_api_key', '') . '|' . get_setting('pudo_sandbox', '0');
     foreach ($groups as $keys) {
         foreach ($keys as $key => $meta) {
-            if ($meta[1] === 'toggle') {
+            if ($meta[1] === 'secret') {
+                // The form shows a masked key; only a newly typed one replaces it.
+                $value = trim((string) ($_POST[$key] ?? ''));
+                if ($value !== '' && !str_contains($value, '•')) {
+                    set_setting($key, $value);
+                }
+            } elseif ($meta[1] === 'toggle') {
                 set_setting($key, !empty($_POST[$key]) ? '1' : '0');
             } elseif (array_key_exists($key, $_POST)) {
                 $value = $key === 'contact_whatsapp' ? (preg_replace('/\D/', '', (string) $_POST[$key]) ?: DEFAULT_WHATSAPP) : sanitize((string) $_POST[$key]);
                 set_setting($key, $value);
             }
+        }
+    }
+    // A new Pudo key or mode: forget the old locker list and prove the key works.
+    if (get_setting('pudo_api_key', '') . '|' . get_setting('pudo_sandbox', '0') !== $pudoBefore && Pudo::configured()) {
+        Pudo::reset();
+        try {
+            flash('success', 'Connected to Pudo: ' . count(Pudo::lockers(true)) . ' lockers loaded.');
+        } catch (Throwable $e) {
+            flash('danger', e($e->getMessage()));
         }
     }
     $flash = 'Settings saved. Changes are live immediately.';
@@ -73,6 +109,7 @@ $points = get_pickup_points();
   </div>
 </div>
 
+<?= flash_html() ?>
 <?php if (!empty($_GET['saved'])): ?>
   <div class="alert-fc alert-fc--ok"><i class="fa-solid fa-circle-check"></i><span>Settings saved. Changes are live immediately.</span></div>
 <?php endif; ?>
@@ -95,6 +132,14 @@ $points = get_pickup_points();
                 <input type="checkbox" id="<?= $key ?>" name="<?= $key ?>" value="1" <?= $value === '1' ? 'checked' : '' ?> style="accent-color:var(--leaf)">
                 Enabled
               </label>
+            <?php elseif ($type === 'secret'): ?>
+              <input class="input-fc" type="text" id="<?= $key ?>" name="<?= $key ?>" value="<?= $value !== '' ? '••••••••' . e(substr($value, -4)) : '' ?>" autocomplete="off" spellcheck="false">
+            <?php elseif ($type === 'select'): ?>
+              <select class="input-fc" id="<?= $key ?>" name="<?= $key ?>">
+                <?php foreach ($meta[3] as $optValue => $optLabel): ?>
+                  <option value="<?= e((string) $optValue) ?>" <?= $value === (string) $optValue ? 'selected' : '' ?>><?= e($optLabel) ?></option>
+                <?php endforeach; ?>
+              </select>
             <?php elseif ($type === 'number'): ?>
               <div class="d-flex align-items-center gap-2">
                 <span class="text-muted-3">R</span>

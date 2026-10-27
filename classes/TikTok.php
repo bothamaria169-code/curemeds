@@ -145,6 +145,7 @@ final class TikTok
             }
         }
         if ($video === '') {
+            error_log('TikTok: reel not downloadable from ' . $videoUrl);
             return ['ok' => false, 'id' => '', 'error' => 'The reel video was not ready to download.'];
         }
 
@@ -155,6 +156,7 @@ final class TikTok
         $uploadUrl = (string) ($init['data']['upload_url'] ?? '');
         $publishId = (string) ($init['data']['publish_id'] ?? '');
         if ($uploadUrl === '') {
+            error_log('TikTok init failed: ' . json_encode($init));
             return ['ok' => false, 'id' => '', 'error' => 'TikTok said: ' . self::error($init)];
         }
 
@@ -171,8 +173,25 @@ final class TikTok
         $err  = curl_error($ch);
         curl_close($ch);
         if ($code < 200 || $code >= 300) {
+            error_log('TikTok upload HTTP ' . $code . ' ' . $err);
             return ['ok' => false, 'id' => $publishId, 'error' => 'Upload to TikTok failed (' . ($err ?: 'HTTP ' . $code) . ').'];
         }
+
+        // An accepted upload can still be rejected while TikTok processes it, so wait for the verdict.
+        $status = 'PROCESSING_UPLOAD';
+        for ($try = 0; $try < 12 && in_array($status, ['PROCESSING_UPLOAD', 'PROCESSING_DOWNLOAD'], true); $try++) {
+            sleep(5);
+            $r      = self::json('POST', 'post/publish/status/fetch/', ['publish_id' => $publishId]);
+            $status = (string) ($r['data']['status'] ?? 'UNKNOWN: ' . self::error($r));
+            if ($status === 'FAILED') {
+                error_log('TikTok draft failed: ' . json_encode($r));
+                return ['ok' => false, 'id' => $publishId, 'error' => 'TikTok rejected the video: ' . ($r['data']['fail_reason'] ?? 'no reason given') . '.'];
+            }
+        }
+        if ($status === 'SEND_TO_USER_INBOX' || $status === 'PUBLISH_COMPLETE') {
+            return ['ok' => true, 'id' => $publishId, 'error' => ''];
+        }
+        error_log('TikTok draft status: ' . $status);
         return ['ok' => true, 'id' => $publishId, 'error' => ''];
     }
 

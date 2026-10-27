@@ -19,6 +19,7 @@ require_once __DIR__ . '/../classes/Groq.php';
 require_once __DIR__ . '/../classes/ImageKit.php';
 require_once __DIR__ . '/../classes/SocialPoster.php';
 require_once __DIR__ . '/../classes/TikTok.php';
+require_once __DIR__ . '/../classes/Pudo.php';
 require_once __DIR__ . '/../classes/ContentEngine.php';
 
 // ── One-time messages across a redirect ──────────────────────────────────

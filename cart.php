@@ -11,10 +11,16 @@ $flatRate = (float) get_setting('shipping_flat_rate', '100');
 $toFree   = max(0.0, $freeAt - $subtotal);
 $estShip  = $subtotal >= $freeAt ? 0.0 : $flatRate;
 $waDisplay = Health::displayPhone(whatsapp_number());
+$pudoOn    = Pudo::enabled();
+$pudoFrom  = (float) get_setting('pudo_fixed_fee', '0') > 0 ? (float) get_setting('pudo_fixed_fee') : (float) get_setting('pudo_fallback_fee', '65');
 
 $page_title       = 'Your enquiry list — ' . SITE_NAME;
 $meta_description = 'Send the products on your list to CureMeds on WhatsApp in one message.';
 $meta_robots      = 'noindex';
+if ($pudoOn) {
+    $extra_css = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css'];
+    $extra_js  = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js', asset('assets/js/pudo-map.js')];
+}
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -91,14 +97,34 @@ include __DIR__ . '/includes/header.php';
             <div class="summary-row"><span><?= cart_count() ?> item<?= cart_count() === 1 ? '' : 's' ?></span><b><?= format_price($subtotal) ?></b></div>
             <div class="summary-row">
               <span>Delivery <span class="text-muted-3">(estimate)</span></span>
-              <b><?= $estShip > 0 ? format_price($estShip) : 'Free' ?></b>
+              <b id="shipLabel" data-courier="<?= e($estShip > 0 ? format_price($estShip) : 'Free') ?>"><?= $estShip > 0 ? format_price($estShip) : 'Free' ?></b>
             </div>
             <div class="summary-total">
               <span>Estimated total</span>
-              <b class="money"><?= format_price($subtotal + $estShip) ?></b>
+              <b class="money" id="totalLabel" data-courier="<?= e(format_price($subtotal + $estShip)) ?>"><?= format_price($subtotal + $estShip) ?></b>
             </div>
             <?php if ($toFree > 0): ?>
               <p class="field__hint"><i class="fa-solid fa-truck-fast me-1"></i>Free delivery on orders over <?= format_price_short($freeAt) ?>.</p>
+            <?php endif; ?>
+
+            <?php if ($pudoOn): ?>
+            <div class="field mt-3">
+              <label>Delivery</label>
+              <label class="d-block" style="font-weight:500;font-size:.92rem"><input type="radio" name="delivery_method" value="delivery" checked> Courier to your door</label>
+              <label class="d-block" style="font-weight:500;font-size:.92rem"><input type="radio" name="delivery_method" value="pudo"> Pudo locker near you <span class="text-muted-3">(from <?= format_price_short($pudoFrom) ?>)</span></label>
+            </div>
+            <div id="pudoFields" class="pudo" hidden>
+              <input type="hidden" name="pudo_locker" id="pudoLocker" value="">
+              <div class="pudo__bar">
+                <input class="input-fc" type="search" placeholder="Search a suburb, town or mall…" data-pudo-search aria-label="Search Pudo lockers">
+                <button type="button" class="btn-fc btn-fc--light btn-fc--sm" data-pudo-near><i class="fa-solid fa-location-crosshairs"></i> Near me</button>
+              </div>
+              <div class="pudo__map" data-pudo-map></div>
+              <div class="pudo__status" data-pudo-status>Loading lockers…</div>
+              <div class="pudo__list" data-pudo-list></div>
+              <div class="pudo__chosen" data-pudo-chosen hidden></div>
+              <div class="field__hint">Pudo SMSes a PIN to your cellphone when the parcel is in the locker, so please add your number below.</div>
+            </div>
             <?php endif; ?>
 
             <div class="field mt-3">
