@@ -8,12 +8,16 @@ if (PHP_VERSION_ID < 80100) {
         . '. In cPanel open "MultiPHP Manager" (or "Select PHP Version"), tick curemeds.co.za and choose PHP 8.2.');
 }
 
+// Run from cron rather than a web request. cPanel's /usr/local/bin/php is often
+// the CGI build (PHP_SAPI "cgi-fcgi"), so "no web request" counts as well.
+define('IS_CLI', PHP_SAPI === 'cli' || (empty($_SERVER['REQUEST_METHOD']) && empty($_SERVER['HTTP_HOST'])));
+
 // A fatal error on the live site would otherwise be a blank "HTTP ERROR 500".
 // Show a plain page instead; the details go to public_html/error_log, and are
 // shown on screen only with ?debug=<cron_key from config/secrets.php>.
 register_shutdown_function(static function (): void {
     $err = error_get_last();
-    if (!$err || !in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true) || PHP_SAPI === 'cli' || ini_get('display_errors') === '1') {
+    if (!$err || !in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true) || IS_CLI || ini_get('display_errors') === '1') {
         return;
     }
     $show = defined('CRON_KEY') && hash_equals(CRON_KEY, (string) ($_GET['debug'] ?? ''));
@@ -120,6 +124,6 @@ if (!empty($_SERVER['DOCUMENT_ROOT'])) {
     $basePath     = str_replace($documentRoot, '', $docRootDir);
 }
 // Cron jobs run without a web request, so they need the live address spelled out.
-define('SITE_URL', PHP_SAPI === 'cli' && IS_PRODUCTION
+define('SITE_URL', IS_CLI && IS_PRODUCTION
     ? 'https://' . SITE_DOMAIN
     : rtrim($protocol . $host . $basePath, '/'));

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
     back();
 }
 
-$lastRun = get_setting('reminders_last_run', '');
+$lastRun = get_setting('cron_last_run') ?? get_setting('reminders_last_run', '');
 $healthy = $lastRun !== '' && strtotime($lastRun) > time() - 30 * 60;
 $log = db()->query("SELECT r.*, m.name AS med, u.name AS patient, u.email FROM reminder_log r
                     JOIN patient_medications m ON m.id = r.medication_id JOIN users u ON u.id = r.user_id

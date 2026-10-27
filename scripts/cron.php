@@ -14,7 +14,7 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../includes/functions.php';
 
-if (PHP_SAPI !== 'cli') {
+if (!IS_CLI) {
     // The web route is only for hosts without cron; it needs the secret key.
     if (!hash_equals(CRON_KEY, (string) ($_GET['key'] ?? ''))) {
         http_response_code(403);
@@ -32,8 +32,14 @@ if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
 set_time_limit(600);
 
 $started = microtime(true);
-$r = Health::sendDueReminders();
-echo date('Y-m-d H:i:s') . " reminders: {$r['sent']} sent, {$r['failed']} failed, {$r['refills']} refill\n";
+// Proof for the admin that cron runs, whatever happens to the jobs below.
+set_setting('cron_last_run', date('Y-m-d H:i:s'));
+try {
+    $r = Health::sendDueReminders();
+    echo date('Y-m-d H:i:s') . " reminders: {$r['sent']} sent, {$r['failed']} failed, {$r['refills']} refill\n";
+} catch (Throwable $e) {
+    echo 'reminders: error ' . $e->getMessage() . "\n";
+}
 
 try {
     $social = SocialPoster::runDaily();

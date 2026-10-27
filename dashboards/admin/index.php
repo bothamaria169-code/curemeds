@@ -44,7 +44,7 @@ $watch = array_slice($watch, 0, 6);
 
 $tasksLeft = setup_tasks_left();
 $tasksAll  = count(setup_tasks());
-$lastCron  = get_setting('reminders_last_run', '');
+$lastCron  = get_setting('cron_last_run') ?? get_setting('reminders_last_run', '');
 ?>
 
 <div class="dash-head">

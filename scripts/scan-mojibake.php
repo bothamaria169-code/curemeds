@@ -16,7 +16,7 @@ declare(strict_types=1);
  *   php scripts/scan-mojibake.php --fix
  */
 
-if (PHP_SAPI !== 'cli') {
+if (!IS_CLI) {
     http_response_code(403);
     exit("CLI only.\n");
 }

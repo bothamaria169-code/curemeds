@@ -45,8 +45,8 @@ final class Database
     private static function fail(?PDOException $e, array $users): never
     {
         error_log('CureMeds database connection failed: ' . ($e ? $e->getMessage() : 'unknown'));
-        if (PHP_SAPI === 'cli') {
-            fwrite(STDERR, 'Database connection failed: ' . ($e ? $e->getMessage() : 'unknown') . "\n");
+        if (IS_CLI) {
+            fwrite(defined('STDERR') ? STDERR : fopen('php://stderr', 'w'), 'Database connection failed: ' . ($e ? $e->getMessage() : 'unknown') . "\n");
             exit(1);
         }
         $code = $e ? (int) $e->errorInfo[1] : 0;
