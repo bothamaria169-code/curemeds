@@ -81,7 +81,7 @@ $page_title = $page_title ?? ucfirst($dash_role) . ' dashboard — ' . SITE_NAME
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($page_title) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg">
+<link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/logo/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -99,7 +99,7 @@ $page_title = $page_title ?? ucfirst($dash_role) . ' dashboard — ' . SITE_NAME
 
   <aside class="dash-side" id="dashSide">
     <a href="<?= SITE_URL ?>/index.php" class="brand">
-      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg" alt="" class="brand__mark">
+      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.png" alt="" class="brand__mark">
       <span class="brand__word">Cure<em style="color:var(--leaf-light)">Meds</em></span>
     </a>
 

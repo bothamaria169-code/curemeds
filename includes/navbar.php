@@ -29,8 +29,7 @@ $announcement   = get_setting('announcement', '');
   <div class="container header-row">
 
     <a href="<?= SITE_URL ?>/index.php" class="brand" aria-label="<?= e(SITE_NAME) ?> home">
-      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg" alt="" class="brand__mark">
-      <span class="brand__word">Cure<em>Meds</em></span>
+      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-logo.png" alt="<?= e(SITE_NAME) ?>" class="brand__logo" width="480" height="185">
     </a>
 
     <form class="header-search" action="<?= SITE_URL ?>/shop.php" method="get" role="search" autocomplete="off">

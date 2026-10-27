@@ -23,6 +23,7 @@
 
 .brand { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
 .brand__mark { height: 34px; width: auto; }
+.brand__logo { height: 46px; width: auto; }
 .brand__word {
   font-family: var(--font-display); font-weight: 800; font-size: 1.24rem;
   letter-spacing: -.03em; color: var(--ink);

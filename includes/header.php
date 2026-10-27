@@ -40,8 +40,8 @@ if ($nl_gate === 'locked') {
 <meta property="og:locale" content="en_ZA">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg">
-<link rel="apple-touch-icon" href="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg">
+<link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/logo/favicon.png">
+<link rel="apple-touch-icon" href="<?= SITE_URL ?>/assets/img/logo/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,7 +65,7 @@ if ($nl_gate === 'locked') {
     '@type'    => 'Organization',
     'name'     => SITE_NAME,
     'url'      => SITE_URL,
-    'logo'     => SITE_URL . '/assets/img/logo/curemeds-mark.svg',
+    'logo'     => SITE_URL . '/assets/img/logo/curemeds-logo.png',
     'slogan'   => SITE_TAGLINE,
     'address'  => [
         '@type'          => 'PostalAddress',

@@ -66,7 +66,7 @@ $tabUrl = fn(string $m) => '?' . http_build_query(array_filter(['mode' => $m ===
 <title><?= e($page_title) ?></title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0A1B3D">
-<link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg">
+<link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/logo/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -80,7 +80,7 @@ $tabUrl = fn(string $m) => '?' . http_build_query(array_filter(['mode' => $m ===
 
   <aside class="auth-aside" style="background-image:linear-gradient(160deg,rgba(10,27,61,.94),rgba(14,64,160,.86)),url('<?= SITE_URL ?>/assets/img/stock/patient-care.jpg');background-size:cover;background-position:center">
     <a href="<?= SITE_URL ?>/index.php" class="brand" style="position:relative;z-index:1">
-      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg" alt="" class="brand__mark">
+      <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.png" alt="" class="brand__mark">
       <span class="brand__word" style="color:#fff">Cure<em style="color:var(--leaf-light)">Meds</em></span>
     </a>
 
@@ -102,7 +102,7 @@ $tabUrl = fn(string $m) => '?' . http_build_query(array_filter(['mode' => $m ===
   <div class="auth-form">
     <div class="auth-form__inner">
       <a href="<?= SITE_URL ?>/index.php" class="d-lg-none brand mb-4">
-        <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg" alt="" class="brand__mark">
+        <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.png" alt="" class="brand__mark">
         <span class="brand__word">Cure<em>Meds</em></span>
       </a>
 

@@ -51,7 +51,7 @@ $nl_delay   = max(0, min(120, (int) get_setting('newsletter_popup_delay', '8')))
     </div>
 
     <div class="nl-gate__body" data-nl-step="form">
-      <img class="nl-gate__logo" src="<?= SITE_URL ?>/assets/img/logo/curemeds-logo.svg" alt="CureMeds" width="150" height="42">
+      <img class="nl-gate__logo" src="<?= SITE_URL ?>/assets/img/logo/curemeds-logo.png" alt="CureMeds" width="150" height="58">
       <span class="eyebrow"><?= $nl_locked ? 'Members-only shop' : 'Members get more' ?></span>
       <h2 id="nlGateTitle"><?= e($nl_heading) ?></h2>
       <p id="nlGateText" class="nl-gate__text"><?= e($nl_text) ?></p>

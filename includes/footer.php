@@ -10,7 +10,7 @@ $wa       = get_setting('contact_whatsapp', '');
 
       <div>
         <div class="brand mb-3">
-          <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.svg" alt="" class="brand__mark">
+          <img src="<?= SITE_URL ?>/assets/img/logo/curemeds-mark.png" alt="" class="brand__mark">
           <span class="brand__word" style="color:#fff">Cure<em style="color:var(--leaf-light)">Meds</em></span>
         </div>
         <p style="color:var(--on-dark-2);font-size:.88rem;max-width:34ch;">
