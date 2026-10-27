@@ -312,17 +312,6 @@ include __DIR__ . '/../../includes/header.php';
     <div class="tab-panel is-on" data-panel="desc">
       <div class="prose">
         <?= $product['description'] ? rich_text((string) $product['description']) : '<p>' . e((string) $product['short_desc']) . '</p>' ?>
-        <?php if (!in_array($product['category_slug'] ?? '', ['devices-care'], true)): ?>
-          <div class="alert-fc alert-fc--warn mt-4">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>
-              <b>Health product notice.</b> Unless stated otherwise, this product has not been evaluated by SAHPRA for
-              quality, safety or intended use, and is not intended to diagnose, treat, cure or prevent any disease. It does
-              not replace prescribed medication — keep taking your treatment exactly as your clinic prescribed. Speak to a
-              healthcare professional first if you are pregnant, breastfeeding, under 18 or on chronic medication.
-            </span>
-          </div>
-        <?php endif; ?>
       </div>
     </div>
 
