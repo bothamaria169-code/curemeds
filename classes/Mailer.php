@@ -70,6 +70,11 @@ final class Mailer
         foreach ($headers as $name => $value) {
             $mailHeaders .= $name . ': ' . $value . "\r\n";
         }
+        // Some hosts disable mail(); then an unsent email must not break the page that sent it.
+        if (!function_exists('mail')) {
+            error_log('Mailer: no SMTP mailbox set and mail() is disabled — "' . $subject . '" to ' . $to . ' not sent.');
+            return false;
+        }
         return @mail($to, $subject, $htmlBody, $mailHeaders);
     }
 }
