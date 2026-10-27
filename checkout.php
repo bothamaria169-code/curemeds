@@ -27,7 +27,7 @@ $form   = [
     'name'       => $viewer['name']  ?? '',
     'email'      => $viewer['email'] ?? '',
     'phone'      => $viewer['phone'] ?? '',
-    'fulfilment' => isset($methods['pudo']) ? 'pudo' : 'delivery',
+    'fulfilment' => 'delivery',
     'pickup'     => $points[0]['id'] ?? null,
     'locker'     => '',
     'payment'    => isset($payments['eft']) ? 'eft' : (string) array_key_first($payments),
@@ -101,11 +101,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'payment_status'   => 'unpaid',
             'fulfilment'       => $form['fulfilment'],
             'pickup_point_id'  => in_array($form['fulfilment'], ['collection', 'runner'], true) ? $form['pickup'] : null,
-            'pudo_locker_code' => $locker['code'] ?? null,
-            'pudo_locker_name' => $locker ? mb_substr($locker['name'], 0, 160) : null,
             'shipping_address' => $form['fulfilment'] === 'delivery' ? sanitize($form['address']) : $pickupLabel,
             'notes'            => $form['notes'] !== '' ? sanitize($form['notes']) : null,
         ];
+        // Locker columns only when there is a locker, so courier and collection orders never depend on them.
+        if ($locker) {
+            $orderRow['pudo_locker_code'] = $locker['code'];
+            $orderRow['pudo_locker_name'] = mb_substr($locker['name'], 0, 160);
+        }
 
         $lines = array_map(fn($i) => [
             'product_id'   => (int) $i['product']['id'],
@@ -119,19 +122,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image'        => $i['image'],
         ], $items);
 
+        $created = null;
         try {
             $created = (new OrderRepository())->create($orderRow, $lines);
-
-            if ($couponCode) {
-                db()->prepare('UPDATE coupons SET used_count = used_count + 1 WHERE code = :c')->execute([':c' => $couponCode]);
-            }
-
-            notify_order_placed($orderRow + ['order_number' => $created['order_number']], $lines);
-            cart_clear();
-            redirect('order-confirmation.php?order=' . urlencode($created['order_number']));
         } catch (Throwable $e) {
             error_log('Checkout failed: ' . $e->getMessage());
             $errors[] = 'We could not place that order. Nothing has been charged — please try again, or contact us if it keeps happening.';
+            // Staff testing the shop see the real reason.
+            if (($viewer['role'] ?? '') === 'admin') {
+                $errors[] = 'Admin only: ' . $e->getMessage();
+            }
+        }
+        if ($created) {
+            // The order exists now: nothing after this may stop the customer reaching their order page.
+            try {
+                if ($couponCode) {
+                    db()->prepare('UPDATE coupons SET used_count = used_count + 1 WHERE code = :c')->execute([':c' => $couponCode]);
+                }
+                notify_order_placed($orderRow + ['order_number' => $created['order_number']], $lines);
+            } catch (Throwable $e) {
+                error_log('Order ' . $created['order_number'] . ' placed, but the follow-up failed: ' . $e->getMessage());
+            }
+            cart_clear();
+            redirect('order-confirmation.php?order=' . urlencode($created['order_number']));
         }
     }
 }

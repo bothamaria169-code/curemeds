@@ -37,6 +37,7 @@ function curemeds_migrate(): void
     };
     $table = fn(string $sql) => $pdo->exec($sql . ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
+    $ok = true;
     try {
         if ($current < 1) {
             // Automatic articles and reels (classes/ContentEngine.php).
@@ -111,10 +112,20 @@ function curemeds_migrate(): void
             }
 
             // Button clicks with no name or phone were test clicks, not customers.
-            $pdo->exec("DELETE FROM enquiries WHERE status = 'new' AND (name IS NULL OR name = '') AND (phone IS NULL OR phone = '')");
+            // Once only, even if a later step fails and this one runs again.
+            if (get_setting('cm_cleared_test_clicks') === null) {
+                $pdo->exec("DELETE FROM enquiries WHERE status = 'new' AND (name IS NULL OR name = '') AND (phone IS NULL OR phone = '')");
+                set_setting('cm_cleared_test_clicks', '1');
+            }
 
             import_catalogue($pdo);
         }
+    } catch (Throwable $e) {
+        $ok = false;
+        error_log('CureMeds upgrade step 1 failed: ' . $e->getMessage());
+    }
+    // Each step runs on its own, so one that fails never holds back the rest.
+    try {
         if ($current < 2) {
             // Pudo lockers on the enquiry list (classes/Pudo.php).
             $addCol('enquiries', 'delivery_method', "VARCHAR(20) NOT NULL DEFAULT 'delivery'");
@@ -131,6 +142,11 @@ function curemeds_migrate(): void
                 }
             }
         }
+    } catch (Throwable $e) {
+        $ok = false;
+        error_log('CureMeds upgrade step 2 failed: ' . $e->getMessage());
+    }
+    try {
         if ($current < 3) {
             // Online shop: checkout with EFT + proof of payment, Pudo on orders, Google sign-in.
             $pdo->exec("ALTER TABLE `orders` MODIFY `fulfilment` ENUM('delivery','collection','runner','pudo') NOT NULL DEFAULT 'delivery'");
@@ -145,9 +161,13 @@ function curemeds_migrate(): void
                 set_setting('bank_branch_code', '051001');
             }
         }
-        set_setting('cm_schema_version', (string) CUREMEDS_SCHEMA_VERSION);
     } catch (Throwable $e) {
-        error_log('CureMeds upgrade failed: ' . $e->getMessage());
+        $ok = false;
+        error_log('CureMeds upgrade step 3 failed: ' . $e->getMessage());
+    }
+    // Only a clean run is recorded; otherwise every step (they are all safe to repeat) runs again next time.
+    if ($ok) {
+        set_setting('cm_schema_version', (string) CUREMEDS_SCHEMA_VERSION);
     }
 }
 

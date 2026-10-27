@@ -5,7 +5,7 @@ final class OrderRepository
 {
     public function generateOrderNumber(): string
     {
-        return 'FC' . date('ymd') . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
+        return 'CM' . date('ymd') . strtoupper(substr(bin2hex(random_bytes(3)), 0, 5));
     }
 
     /**
