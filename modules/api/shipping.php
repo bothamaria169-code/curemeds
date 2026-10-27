@@ -7,8 +7,9 @@ require_once __DIR__ . '/_boot.php';
 $in         = api_input();
 $fulfilment = (string) ($in['fulfilment'] ?? 'delivery');
 $pickupId   = !empty($in['pickup_point_id']) ? (int) $in['pickup_point_id'] : null;
+$locker     = !empty($in['pudo_locker']) ? (string) preg_replace('/[^A-Za-z0-9_-]/', '', (string) $in['pudo_locker']) : null;
 
-if (!isset(FULFILMENT_METHODS[$fulfilment])) {
+if (!isset(fulfilment_methods()[$fulfilment])) {
     api_fail('Unknown fulfilment method.');
 }
 
@@ -20,7 +21,7 @@ if (!empty($_SESSION['coupon'])) {
     $discount = $c['valid'] ? (float) $c['discount'] : 0.0;
 }
 
-$shipping = shipping_cost($fulfilment, $subtotal, $pickupId);
+$shipping = shipping_cost($fulfilment, $subtotal, $pickupId, $locker);
 $total    = max(0.0, $subtotal - $discount + $shipping);
 
 api_ok([

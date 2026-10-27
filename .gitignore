@@ -23,3 +23,6 @@ GlucoBalance Diabetes Care Display.png
 # Concept mock-ups marked "not for real use" — kept off the site
 02.jpg
 ub1lsdub1lsdub1l.jpg
+!uploads/proof-of-payments/
+uploads/proof-of-payments/*
+!uploads/proof-of-payments/.htaccess

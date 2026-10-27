@@ -14,8 +14,8 @@ $waDisplay = Health::displayPhone(whatsapp_number());
 $pudoOn    = Pudo::enabled();
 $pudoFrom  = (float) get_setting('pudo_fixed_fee', '0') > 0 ? (float) get_setting('pudo_fixed_fee') : (float) get_setting('pudo_fallback_fee', '65');
 
-$page_title       = 'Your enquiry list — ' . SITE_NAME;
-$meta_description = 'Send the products on your list to CureMeds on WhatsApp in one message.';
+$page_title       = 'Your cart — ' . SITE_NAME;
+$meta_description = 'Your CureMeds cart: check out and pay by EFT, or send the list on WhatsApp.';
 $meta_robots      = 'noindex';
 if ($pudoOn) {
     $extra_css = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css', 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css'];
@@ -26,9 +26,9 @@ include __DIR__ . '/includes/header.php';
 
 <header class="page-head">
   <div class="container">
-    <nav class="crumbs"><a href="<?= SITE_URL ?>/index.php">Home</a><i class="fa-solid fa-chevron-right"></i><span>Enquiry list</span></nav>
-    <h1>Your enquiry list</h1>
-    <p>Collect the products you want, then send them to us on WhatsApp in one message. Nothing is charged on the website.</p>
+    <nav class="crumbs"><a href="<?= SITE_URL ?>/index.php">Home</a><i class="fa-solid fa-chevron-right"></i><span>Cart</span></nav>
+    <h1>Your cart</h1>
+    <p>Check out and pay by EFT into our Standard Bank account, then upload your proof of payment. Prefer to chat first? Send the list on WhatsApp instead.</p>
   </div>
 </header>
 
@@ -37,9 +37,9 @@ include __DIR__ . '/includes/header.php';
 
     <?php if (!$items): ?>
       <div class="empty card-fc">
-        <div class="empty__icon"><i class="fa-solid fa-clipboard-list"></i></div>
-        <h2>Your list is empty</h2>
-        <p class="mb-4">Tap the <i class="fa-solid fa-plus"></i> on any product to add it here, or enquire about one product straight away.</p>
+        <div class="empty__icon"><i class="fa-solid fa-cart-shopping"></i></div>
+        <h2>Your cart is empty</h2>
+        <p class="mb-4">Tap <b>Add to cart</b> on any product to add it here.</p>
         <a href="<?= SITE_URL ?>/shop.php" class="btn-fc btn-fc--lg">Browse products</a>
       </div>
 
@@ -90,9 +90,21 @@ include __DIR__ . '/includes/header.php';
 
         <!-- ── Send ──────────────────────────────────────────────── -->
         <div class="summary">
-          <form class="card-fc card-fc--pad" method="post" action="<?= SITE_URL ?>/enquire.php" target="_blank" id="enquiryForm">
+          <div class="card-fc card-fc--pad mb-3">
+            <h2 style="font-size:1.15rem">Order summary</h2>
+            <div class="summary-row"><span>Subtotal</span><b><?= format_price($subtotal) ?></b></div>
+            <div class="summary-row"><span>Delivery</span><b class="text-muted-2" style="font-weight:500">Chosen at checkout</b></div>
+            <?php if ($toFree > 0): ?>
+              <p class="field__hint"><i class="fa-solid fa-truck-fast me-1"></i>Add <?= format_price_short($toFree) ?> more for free delivery.</p>
+            <?php endif; ?>
+            <a href="<?= SITE_URL ?>/checkout.php" class="btn-fc btn-fc--block btn-fc--lg mt-2"><i class="fa-solid fa-lock"></i> Checkout</a>
+            <p class="text-center text-muted-3 mt-2 mb-0" style="font-size:.78rem">Pay by EFT and upload your proof of payment<?= isset(payment_methods()['cod']) ? ', or pay cash on delivery' : '' ?>.</p>
+          </div>
+
+          <details class="card-fc card-fc--pad">
+          <summary style="cursor:pointer;font-family:var(--font-display);font-weight:700"><i class="fa-brands fa-whatsapp me-1" style="color:#25D366"></i> Or order on WhatsApp</summary>
+          <form class="mt-3" method="post" action="<?= SITE_URL ?>/enquire.php" target="_blank" id="enquiryForm">
             <?= csrf_field() ?>
-            <h2 style="font-size:1.15rem">Send on WhatsApp</h2>
 
             <div class="summary-row"><span><?= cart_count() ?> item<?= cart_count() === 1 ? '' : 's' ?></span><b><?= format_price($subtotal) ?></b></div>
             <div class="summary-row">
@@ -155,16 +167,17 @@ include __DIR__ . '/includes/header.php';
             <button class="btn-fc btn-fc--whatsapp btn-fc--block btn-fc--lg" type="submit">
               <i class="fa-brands fa-whatsapp"></i> Send to <?= e($waDisplay) ?>
             </button>
-            <a href="<?= SITE_URL ?>/shop.php" class="btn-fc btn-fc--light btn-fc--block mt-2">Keep browsing</a>
           </form>
+          </details>
+          <a href="<?= SITE_URL ?>/shop.php" class="btn-fc btn-fc--light btn-fc--block mt-3">Keep browsing</a>
 
           <div class="card-fc card-fc--pad mt-3" style="background:var(--leaf-wash);border-color:transparent">
             <b style="font-family:var(--font-display);display:block;margin-bottom:.5rem">What happens next</b>
             <ul style="font-size:.85rem;color:var(--text-2);margin:0;padding-left:1.1rem;line-height:1.8">
-              <li>WhatsApp opens with your list typed in — just press send.</li>
-              <li>We confirm stock, the final total and delivery.</li>
-              <li>You pay by EFT or cash on delivery; we courier it in 2–4 working days.</li>
-              <li>We set up your reminders in the patient portal.</li>
+              <li>Check out — your order number and our bank details appear straight away.</li>
+              <li>Pay by EFT with the order number as reference, then upload your proof of payment.</li>
+              <li>We confirm within one working day and courier it in 2–4 working days.</li>
+              <li>Track it under <b>My orders</b> — sign in with Google to keep everything in one place.</li>
             </ul>
           </div>
           <?php $payCardClass = 'mt-3'; include __DIR__ . '/includes/payment-card.php'; ?>

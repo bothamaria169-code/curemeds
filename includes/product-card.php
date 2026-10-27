@@ -89,14 +89,14 @@ $margin      = $is_res ? Pricing::margin($product, $card_user) : null;
       </a>
     <?php else: ?>
       <div class="p-card__foot--split">
-        <a class="btn-fc btn-fc--whatsapp btn-fc--sm" href="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>"
-           target="_blank" rel="noopener nofollow">
-          <i class="fa-brands fa-whatsapp"></i> Enquire
-        </a>
-        <button class="icon-square add-to-cart" type="button" data-product-id="<?= (int) $product['id'] ?>" data-qty="1"
-                title="Add to enquiry list" aria-label="Add <?= e($product['name']) ?> to enquiry list">
-          <i class="fa-solid fa-plus"></i>
+        <button class="btn-fc btn-fc--sm add-to-cart" type="button" data-product-id="<?= (int) $product['id'] ?>" data-qty="1"
+                aria-label="Add <?= e($product['name']) ?> to cart">
+          <i class="fa-solid fa-cart-plus"></i> Add to cart
         </button>
+        <a class="icon-square" href="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>" target="_blank" rel="noopener nofollow"
+           title="Ask on WhatsApp" aria-label="Ask about <?= e($product['name']) ?> on WhatsApp" style="color:#25D366">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
       </div>
     <?php endif; ?>
   </div>

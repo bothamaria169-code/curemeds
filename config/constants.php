@@ -37,6 +37,7 @@ const ORDER_STATUSES = [
 const FULFILMENT_METHODS = [
     'delivery'   => ['label' => 'Courier delivery', 'blurb' => 'Door-to-door anywhere in South Africa, 2–4 working days. Tracking number sent on WhatsApp.', 'icon' => 'fa-truck-fast'],
     'collection' => ['label' => 'Collection',       'blurb' => 'Collect by arrangement — ask on WhatsApp where and when.', 'icon' => 'fa-store'],
+    'pudo'       => ['label' => 'Pudo locker',      'blurb' => 'The Courier Guy delivers to a Pudo smart locker you pick on the map. Collect with a PIN, 2–4 working days.', 'icon' => 'fa-box-archive'],
 ];
 
 // ── Reseller tiers ───────────────────────────────────────────────────────

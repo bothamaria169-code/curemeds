@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
         $row = db()->prepare('SELECT * FROM enquiries WHERE id = :id');
         $row->execute([':id' => $id]);
         try {
-            $res = Pudo::book($row->fetch() ?: []);
+            $res = Pudo::book($row->fetch() ?: [], 'enquiries');
             flash('success', 'Booked with Pudo — waybill ' . e((string) ($res['custom_tracking_reference'] ?? $res['short_tracking_reference'] ?? '(pending)')) . '. Pudo will SMS the customer when it is in the locker.');
         } catch (Throwable $e) {
             flash('danger', e($e->getMessage()));

@@ -4,11 +4,10 @@ declare(strict_types=1);
 /**
  * The Courier Guy's Pudo locker network (api-pudo.co.za), ported from FairCart.
  *
- * On the enquiry list the customer can pick a Pudo locker on a map instead of
- * courier delivery; the fee is a live locker-to-locker (or door-to-locker) rate
- * for the box size in Settings → Pudo lockers, unless a fixed fee is set there.
- * Once the enquiry is paid, Admin → Enquiries → "Book Pudo shipment" creates
- * the waybill.
+ * At checkout (and in a WhatsApp enquiry) the customer can pick a Pudo locker
+ * on a map; the fee is a live locker-to-locker (or door-to-locker) rate for the
+ * box size in Settings → Pudo lockers, unless a fixed fee is set there. Once
+ * paid, Admin → Order (or Enquiry) → "Book Pudo shipment" creates the waybill.
  *
  * Auth is the API key from customer.pudo.co.za → Settings → API keys, sent as a
  * Bearer token.
@@ -268,11 +267,19 @@ final class Pudo
         return $d !== '' ? '+' . $d : '';
     }
 
-    /** Books an enquiry's parcel with Pudo and stores the waybill on it. Returns the API reply. */
-    public static function book(array $enquiry): array
+    /**
+     * Books the parcel for an order (or a WhatsApp enquiry) with Pudo and
+     * stores the waybill on that row. Returns the API reply.
+     */
+    public static function book(array $row, string $table = 'orders'): array
     {
+        // Orders and enquiries name the same things differently.
+        $enquiry = $table === 'orders' ? [
+            'id' => $row['id'] ?? 0, 'ref' => (string) ($row['order_number'] ?? ''), 'name' => $row['customer_name'] ?? '',
+            'phone' => $row['customer_phone'] ?? '', 'email' => $row['customer_email'] ?? '',
+        ] + $row : ['ref' => 'E' . ($row['id'] ?? '')] + $row;
         if (empty($enquiry['pudo_locker_code'])) {
-            throw new RuntimeException('This enquiry is not going to a Pudo locker.');
+            throw new RuntimeException('This one is not going to a Pudo locker.');
         }
         if (!empty($enquiry['courier_waybill'])) {
             throw new RuntimeException('Already booked: waybill ' . $enquiry['courier_waybill'] . '.');
@@ -284,7 +291,7 @@ final class Pudo
         if (!$rate) {
             throw new RuntimeException('Pudo could not quote this locker, so it cannot be booked. Try a different box size.');
         }
-        $ref  = 'CureMeds E' . $enquiry['id'];
+        $ref  = 'CureMeds ' . $enquiry['ref'];
         $body = [
             'collection_address' => self::collectionAddress(),
             'collection_contact' => [
@@ -301,7 +308,7 @@ final class Pudo
             'service_level_code'              => $rate['code'],
             'special_instructions_collection' => $ref,
             'special_instructions_delivery'   => $ref,
-            'customer_reference'              => 'E' . $enquiry['id'],
+            'customer_reference'              => $enquiry['ref'],
             'collection_min_date'             => gmdate('Y-m-d\TH:i:s.000\Z'),
             'delivery_min_date'               => gmdate('Y-m-d\TH:i:s.000\Z', time() + 86400),
         ];
@@ -310,7 +317,7 @@ final class Pudo
         if ($waybill === '' && empty($res['id'])) {
             throw new RuntimeException('Pudo did not return a waybill: ' . mb_substr(json_encode($res), 0, 200));
         }
-        db_update('enquiries', (int) $enquiry['id'], [
+        db_update($table === 'orders' ? 'orders' : 'enquiries', (int) $enquiry['id'], [
             'courier_waybill'  => $waybill ?: null,
             'courier_shipment' => isset($res['id']) ? (string) $res['id'] : null,
             'courier_pin'      => isset($res['pincode']) ? (string) $res['pincode'] : null,

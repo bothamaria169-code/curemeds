@@ -28,6 +28,7 @@ $nav = match ($dash_role) {
         'Overview' => [
             ['dashboard', 'index.php',     'fa-gauge-high',      'Dashboard', null],
             ['setup',     'setup.php',     'fa-list-check',      'Setup checklist', $stats['setup_left'] ?? 0],
+            ['orders',    'orders.php',    'fa-receipt',         'Orders', $stats['orders_pending'] ?? 0],
             ['enquiries', 'enquiries.php', 'fa-brands fa-whatsapp', 'Enquiries', $stats['enquiries_new'] ?? 0],
             ['purchases', 'purchases.php', 'fa-bolt',          'Live ticker', null],
         ],
@@ -66,6 +67,7 @@ $nav = match ($dash_role) {
             ['readings',     'readings.php',     'fa-chart-line',     'Readings',      null],
         ],
         'Account' => [
+            ['orders',   'orders.php',   'fa-receipt',   'My orders',   null],
             ['wishlist', 'wishlist.php', 'fa-heart',     'Saved items', null],
             ['account',  'account.php',  'fa-user-gear', 'My details',  null],
         ],

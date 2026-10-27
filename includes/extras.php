@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   - the weekly product newsletter
  */
 
-const CUREMEDS_SCHEMA_VERSION = 2;
+const CUREMEDS_SCHEMA_VERSION = 3;
 
 function curemeds_migrate(): void
 {
@@ -131,6 +131,20 @@ function curemeds_migrate(): void
                 }
             }
         }
+        if ($current < 3) {
+            // Online shop: checkout with EFT + proof of payment, Pudo on orders, Google sign-in.
+            $pdo->exec("ALTER TABLE `orders` MODIFY `fulfilment` ENUM('delivery','collection','runner','pudo') NOT NULL DEFAULT 'delivery'");
+            $addCol('orders', 'pudo_locker_code', 'VARCHAR(20) DEFAULT NULL');
+            $addCol('orders', 'pudo_locker_name', 'VARCHAR(160) DEFAULT NULL');
+            $addCol('orders', 'courier_waybill', 'VARCHAR(60) DEFAULT NULL');
+            $addCol('orders', 'courier_shipment', 'VARCHAR(60) DEFAULT NULL');
+            $addCol('orders', 'courier_pin', 'VARCHAR(20) DEFAULT NULL');
+            $addCol('users', 'google_id', 'VARCHAR(64) DEFAULT NULL UNIQUE');
+            // Standard Bank uses one universal branch code for EFTs.
+            if (get_setting('bank_name') === 'Standard Bank' && get_setting('bank_branch_code') === null) {
+                set_setting('bank_branch_code', '051001');
+            }
+        }
         set_setting('cm_schema_version', (string) CUREMEDS_SCHEMA_VERSION);
     } catch (Throwable $e) {
         error_log('CureMeds upgrade failed: ' . $e->getMessage());
@@ -228,6 +242,12 @@ function payment_methods(): array
                      'note' => (string) get_setting('cod_note', 'Pay the driver in cash when your order arrives.')];
     }
     return $m;
+}
+
+/** "Continue with Google" buttons show only once the keys are saved (Settings → Google sign-in). */
+function google_login_enabled(): bool
+{
+    return GoogleAuth::enabled();
 }
 
 /** Plain text for WhatsApp messages and plain emails. */

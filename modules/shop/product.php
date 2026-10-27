@@ -221,7 +221,7 @@ include __DIR__ . '/../../includes/header.php';
       </div>
       <?php endif; ?>
 
-      <!-- ── Enquire ──────────────────────────────────────────────── -->
+      <!-- ── Buy ──────────────────────────────────────────────────── -->
       <div class="d-flex gap-2 align-items-center mt-4 flex-wrap">
         <?php if (!$soldOut): ?>
           <div class="qty">
@@ -229,18 +229,23 @@ include __DIR__ . '/../../includes/header.php';
             <input type="number" id="pdpQty" value="1" min="1" max="99" aria-label="Quantity">
             <button type="button" data-step="up" aria-label="Increase quantity"><i class="fa-solid fa-plus"></i></button>
           </div>
-          <a class="btn-fc btn-fc--whatsapp btn-fc--lg" style="flex:1;min-width:220px" target="_blank" rel="noopener nofollow"
-             href="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>" id="pdpEnquire"
-             data-base="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>">
-            <i class="fa-brands fa-whatsapp"></i> Enquire on WhatsApp
-          </a>
-          <button class="btn-fc btn-fc--ghost btn-fc--lg add-to-cart" type="button"
+          <button class="btn-fc btn-fc--lg add-to-cart" type="button" style="flex:1;min-width:180px"
                   data-product-id="<?= (int) $product['id'] ?>"
                   data-qty-from="#pdpQty"
-                  data-requires-variant="<?= $product['type'] === 'variable' ? '1' : '0' ?>"
-                  title="Add to your enquiry list to send several products at once">
-            <i class="fa-solid fa-plus"></i> Add to list
+                  data-requires-variant="<?= $product['type'] === 'variable' ? '1' : '0' ?>">
+            <i class="fa-solid fa-cart-plus"></i> Add to cart
           </button>
+          <button class="btn-fc btn-fc--ghost btn-fc--lg add-to-cart" type="button"
+                  data-product-id="<?= (int) $product['id'] ?>"
+                  data-qty-from="#pdpQty" data-buy-now="1"
+                  data-requires-variant="<?= $product['type'] === 'variable' ? '1' : '0' ?>">
+            <i class="fa-solid fa-bolt"></i> Buy now
+          </button>
+          <a class="btn-fc btn-fc--whatsapp btn-fc--block" target="_blank" rel="noopener nofollow"
+             href="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>" id="pdpEnquire"
+             data-base="<?= SITE_URL ?>/enquire.php?product=<?= (int) $product['id'] ?>">
+            <i class="fa-brands fa-whatsapp"></i> Questions? Ask on WhatsApp
+          </a>
           <script>
             // Carry the chosen quantity into the WhatsApp message.
             document.getElementById('pdpEnquire').addEventListener('click', function () {

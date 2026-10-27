@@ -48,7 +48,7 @@ if ($action === 'add') {
     cart_add($productId, $variantId, $qty);
     api_ok([
         'count'   => cart_count(),
-        'message' => $qty > 1 ? "$qty added to your enquiry list." : 'Added to your enquiry list.',
+        'message' => $qty > 1 ? "$qty added to your cart." : 'Added to your cart.',
     ]);
 }
 

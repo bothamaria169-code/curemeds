@@ -122,6 +122,7 @@ $announcement   = get_setting('announcement', '');
             <?php if ($is_reseller): ?>
               <a href="<?= SITE_URL ?>/dashboards/reseller/index.php"><i class="fa-solid fa-chart-line"></i>Reseller dashboard</a>
             <?php endif; ?>
+            <a href="<?= SITE_URL ?>/dashboards/customer/orders.php"><i class="fa-solid fa-receipt"></i>My orders</a>
             <a href="<?= SITE_URL ?>/dashboards/customer/index.php"><i class="fa-solid fa-heart-pulse"></i>My health tracker</a>
             <a href="<?= SITE_URL ?>/dashboards/customer/medications.php"><i class="fa-solid fa-pills"></i>My medication</a>
             <a href="<?= SITE_URL ?>/dashboards/customer/side-effects.php"><i class="fa-solid fa-notes-medical"></i>Side effects</a>
@@ -139,7 +140,7 @@ $announcement   = get_setting('announcement', '');
         <?php if ($wishlist_count > 0): ?><span class="icon-btn__badge"><?= $wishlist_count ?></span><?php endif; ?>
       </a>
 
-      <a href="<?= SITE_URL ?>/cart.php" class="icon-btn" aria-label="Enquiry list" title="Enquiry list">
+      <a href="<?= SITE_URL ?>/cart.php" class="icon-btn" aria-label="Cart" title="Cart">
         <i class="fa-solid fa-clipboard-list"></i>
         <span class="icon-btn__badge<?= $cart_count ? '' : ' d-none' ?>" data-cart-badge><?= $cart_count ?></span>
       </a>
@@ -170,7 +171,7 @@ $announcement   = get_setting('announcement', '');
     <a href="<?= SITE_URL ?>/shop.php"       class="<?= $active($current === 'shop') ?>">Shop all</a>
     <a href="<?= SITE_URL ?>/price-list.php" class="<?= $active($current === 'price-list') ?>">Price list</a>
     <a href="<?= SITE_URL ?>/dashboards/customer/index.php" class="<?= $active($inDir('customer')) ?>">Patient portal</a>
-    <a href="<?= SITE_URL ?>/cart.php"       class="<?= $active($current === 'cart') ?>">Enquiry list</a>
+    <a href="<?= SITE_URL ?>/cart.php"       class="<?= $active($current === 'cart') ?>">Cart</a>
     <a href="<?= SITE_URL ?>/modules/blog/index.php" class="<?= $active($inDir('blog')) ?>">Learn</a>
     <a href="<?= SITE_URL ?>/about.php"      class="<?= $active($current === 'about') ?>">About</a>
     <a href="<?= SITE_URL ?>/testimonials.php" class="<?= $active($current === 'testimonials') ?>">Reviews</a>

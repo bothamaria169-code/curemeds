@@ -46,7 +46,8 @@
     if (res.success) {
       btn.innerHTML = '<i class="fa-solid fa-check"></i> Added';
       paintBadges(res.count);
-      fcToast(res.message || 'Added to your enquiry list.');
+      fcToast(res.message || 'Added to your cart.');
+      if (btn.dataset.buyNow === '1') { location.href = SITE_URL + '/checkout.php'; return; }
       setTimeout(() => { btn.innerHTML = original; }, 1400);
     } else {
       btn.innerHTML = original;
@@ -118,7 +119,9 @@
     const sync = () => {
       const value = $('input[name="fulfilment"]:checked')?.value;
       $('#deliveryFields') && ($('#deliveryFields').hidden = value !== 'delivery');
-      $('#pickupFields')   && ($('#pickupFields').hidden   = value === 'delivery');
+      $('#pickupFields')   && ($('#pickupFields').hidden   = value !== 'collection');
+      $('#pudoFields')     && ($('#pudoFields').hidden     = value !== 'pudo');
+      if (value === 'pudo') document.dispatchEvent(new Event('fc:pudo-shown'));
 
       const addr = $('#shippingAddress');
       if (addr) addr.required = value === 'delivery';
@@ -127,7 +130,8 @@
       // free-delivery threshold rule in two places.
       fcPost('/modules/api/shipping.php', {
         fulfilment: value,
-        pickup_point_id: $('#pickupPoint')?.value || null
+        pickup_point_id: $('#pickupPoint')?.value || null,
+        pudo_locker: $('#pudoLocker')?.value || null
       }).then((res) => {
         if (!res.success) return;
         $('#shipAmount')  && ($('#shipAmount').textContent  = res.shipping_label);
@@ -136,6 +140,8 @@
     };
     fulfilmentInputs.forEach((i) => i.addEventListener('change', sync));
     $('#pickupPoint')?.addEventListener('change', sync);
+    // The locker map sets #pudoLocker and fires this, so the live Pudo rate shows straight away.
+    document.addEventListener('fc:pudo-locker', sync);
     sync();
   }
 })();

@@ -20,6 +20,11 @@ $groups = [
         'free_shipping_threshold' => ['Free delivery from', 'number', 'Enquiry total at which courier delivery is quoted as free.'],
         'shipping_flat_rate'      => ['Courier flat rate', 'number'],
     ],
+    'Google sign-in (see GOOGLE-LOGIN-SETUP.md)' => [
+        'google_login_enabled' => ['Show "Continue with Google"', 'toggle', 'Shows on sign-in and checkout once both keys are saved.'],
+        'google_client_id'     => ['Client ID', 'text', 'Ends in .apps.googleusercontent.com'],
+        'google_client_secret' => ['Client secret', 'secret', 'Starts with GOCSPX-'],
+    ],
     'Pudo lockers (The Courier Guy) — customers pick a locker on a map in the enquiry list' => [
         'pudo_enabled'        => ['Offer Pudo lockers', 'toggle', 'Shows in the enquiry list once an API key is saved.'],
         'pudo_api_key'        => ['Pudo API key', 'secret', 'customer.pudo.co.za → Settings → API keys → Create API Key.'],

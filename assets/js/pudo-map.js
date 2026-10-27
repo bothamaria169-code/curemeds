@@ -45,6 +45,8 @@
   const totalLabel = document.getElementById('totalLabel');
   async function quote() {
     if (!input.value) return;
+    // Checkout: cart.js re-quotes the whole order (delivery method, coupon, total).
+    if (!shipLabel) { document.dispatchEvent(new Event('fc:pudo-locker')); return; }
     try {
       const res = await fetch(SITE_URL + '/modules/api/pudo-rate.php', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -58,7 +60,7 @@
     } catch (e) { /* the estimate stays; staff confirm the total anyway */ }
   }
   const radios = document.querySelectorAll('input[name="delivery_method"]');
-  const pudoPicked = () => document.querySelector('input[name="delivery_method"]:checked')?.value === 'pudo';
+  const pudoPicked = () => document.querySelector('input[name="delivery_method"]:checked, input[name="fulfilment"]:checked')?.value === 'pudo';
   radios.forEach((r) => r.addEventListener('change', () => {
     root.hidden = !pudoPicked();
     if (pudoPicked()) {
@@ -70,8 +72,8 @@
       totalLabel.textContent = totalLabel.dataset.courier;
     }
   }));
-  // A Pudo enquiry needs a locker before it goes to WhatsApp.
-  document.getElementById('enquiryForm')?.addEventListener('submit', (e) => {
+  // A Pudo enquiry or order needs a locker before it is sent.
+  root.closest('form')?.addEventListener('submit', (e) => {
     if (pudoPicked() && !input.value) {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -174,5 +176,10 @@
     }, () => { statusEl.textContent = 'Location was not shared — type your suburb instead.'; }, { timeout: 10000 });
   });
 
+  // Checkout shows the map from cart.js when "Pudo locker" is picked.
+  document.addEventListener('fc:pudo-shown', () => {
+    start();
+    setTimeout(() => map && map.invalidateSize(), 60);
+  });
   if (!root.hidden) start();
 })();

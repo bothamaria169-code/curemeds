@@ -6,8 +6,8 @@ if (is_logged_in()) {
     redirect(current_user()['role'] === 'admin' ? 'dashboards/admin/index.php' : 'dashboards/customer/index.php');
 }
 
-// Patients sign in with cellphone + PIN; staff with email + password.
-$mode     = ($_GET['mode'] ?? $_POST['mode'] ?? '') === 'staff' ? 'staff' : 'patient';
+// Patients sign in with cellphone + PIN; shoppers and staff with email + password or Google.
+$mode     = in_array($_GET['mode'] ?? $_POST['mode'] ?? '', ['staff', 'email'], true) ? 'staff' : 'patient';
 $redirect = (string) ($_GET['redirect'] ?? $_POST['redirect'] ?? '');
 $errors   = [];
 $email    = '';
@@ -46,6 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         JWTHandler::setToken($user);
         session_regenerate_id(true);
         $home = $user['role'] === 'admin' ? 'dashboards/admin/index.php' : 'dashboards/customer/index.php';
+        // Guest orders placed with this email join the account.
+        if (!empty($user['email'])) {
+            db()->prepare('UPDATE orders SET user_id = :u WHERE user_id IS NULL AND customer_email = :e')->execute([':u' => (int) $user['id'], ':e' => (string) $user['email']]);
+        }
         $target = safe_local_path($redirect, $home);
         // Staff who followed a "Patient portal" link still belong in the admin.
         if ($user['role'] === 'admin' && str_starts_with($target, 'dashboards/customer/')) {
@@ -107,16 +111,24 @@ $tabUrl = fn(string $m) => '?' . http_build_query(array_filter(['mode' => $m ===
       </a>
 
       <h1 style="font-size:1.9rem">Sign in</h1>
-      <p class="text-muted-2 mb-4">New patient? <a href="<?= SITE_URL ?>/modules/auth/register.php" class="text-leaf fw-bold">Create your tracker</a></p>
+      <p class="text-muted-2 mb-4">Shopping? Use <b>Continue with Google</b> or check out as a guest. New patient? <a href="<?= SITE_URL ?>/modules/auth/register.php" class="text-leaf fw-bold">Create your tracker</a></p>
 
       <nav class="auth-tabs" aria-label="Sign-in type">
         <a href="<?= e($tabUrl('patient')) ?>" class="<?= $mode === 'patient' ? 'is-on' : '' ?>"><i class="fa-solid fa-mobile-screen me-1"></i> Patient</a>
-        <a href="<?= e($tabUrl('staff')) ?>" class="<?= $mode === 'staff' ? 'is-on' : '' ?>"><i class="fa-solid fa-user-nurse me-1"></i> Staff</a>
+        <a href="<?= e($tabUrl('staff')) ?>" class="<?= $mode === 'staff' ? 'is-on' : '' ?>"><i class="fa-solid fa-envelope me-1"></i> Email</a>
       </nav>
 
+      <?= flash_html() ?>
       <?php foreach ($errors as $err): ?>
         <div class="alert-fc alert-fc--danger"><i class="fa-solid fa-circle-exclamation"></i><span><?= e($err) ?></span></div>
       <?php endforeach; ?>
+
+      <?php if (google_login_enabled()): ?>
+        <a class="btn-fc btn-fc--ghost btn-fc--block btn-fc--lg mb-3" href="<?= SITE_URL ?>/modules/auth/google.php<?= $redirect !== '' ? '?redirect=' . urlencode($redirect) : '' ?>">
+          <i class="fa-brands fa-google"></i> Continue with Google
+        </a>
+        <p class="text-center text-muted-3 mb-3" style="font-size:.8rem">or</p>
+      <?php endif; ?>
 
       <form method="post" novalidate>
         <?= csrf_field() ?>

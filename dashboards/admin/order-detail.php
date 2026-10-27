@@ -15,7 +15,17 @@ if (!$order) {
 }
 
 $flash = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_token'] ?? ''))) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_token'] ?? '')) && ($_POST['action'] ?? '') === 'book_pudo') {
+    try {
+        $res = Pudo::book($order);
+        $repo->setStatus((int) $order['id'], 'shipped', 'Booked with The Courier Guy (Pudo). Waybill ' . ($res['custom_tracking_reference'] ?? $res['short_tracking_reference'] ?? ''));
+        $order = $repo->getById((int) $order['id']);
+        notify_order_status($order);
+        $flash = 'Booked with Pudo — waybill ' . ($order['courier_waybill'] ?: '(pending)') . '. The customer was emailed.';
+    } catch (Throwable $e) {
+        $flash = 'Pudo: ' . $e->getMessage();
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_token'] ?? ''))) {
     if (!empty($_POST['status']) && isset(ORDER_STATUSES[(string) $_POST['status']])) {
         $repo->setStatus((int) $order['id'], (string) $_POST['status'], trim((string) ($_POST['note'] ?? '')));
         $order['status'] = (string) $_POST['status'];
@@ -166,6 +176,19 @@ $page_title = 'Order ' . $order['order_number'] . ' — CureMeds admin';
     <div class="card-fc card-fc--pad mb-3">
       <h2 style="font-size:1.05rem"><?= e(FULFILMENT_METHODS[$order['fulfilment']]['label']) ?></h2>
       <p style="font-size:.86rem;color:var(--text-2);white-space:pre-line;margin:0"><?= e((string) $order['shipping_address']) ?></p>
+      <?php if ($order['fulfilment'] === 'pudo'): ?>
+        <?php if (!empty($order['courier_waybill'])): ?>
+          <div class="mt-2" style="font-size:.88rem">Waybill <b><?= e((string) $order['courier_waybill']) ?></b><?= !empty($order['courier_pin']) ? ' · drop-off PIN <b>' . e((string) $order['courier_pin']) . '</b>' : '' ?></div>
+          <p class="field__hint mb-0">Drop the parcel at your locker with the PIN, or wait for the courier collection. Print the waybill at customer.pudo.co.za.</p>
+        <?php elseif (Pudo::configured()): ?>
+          <form method="post" class="mt-3" onsubmit="return confirm('Book this parcel with Pudo now? Pudo charges your account for it.')">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="book_pudo">
+            <button class="btn-fc btn-fc--block btn-fc--sm" type="submit"><i class="fa-solid fa-box-archive"></i> Book Pudo shipment</button>
+            <div class="field__hint">Creates the waybill to locker <?= e((string) $order['pudo_locker_code']) ?>, marks the order "Shipped" and emails the customer.<?= $order['payment_status'] !== 'paid' ? ' <b style="color:var(--danger)">Not paid yet.</b>' : '' ?></div>
+          </form>
+        <?php endif; ?>
+      <?php endif; ?>
       <?php if ($order['notes']): ?>
         <div class="alert-fc alert-fc--info mt-3 mb-0" style="font-size:.83rem">
           <i class="fa-solid fa-note-sticky"></i><span><b>Customer note:</b> <?= e($order['notes']) ?></span>

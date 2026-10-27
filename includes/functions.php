@@ -20,6 +20,7 @@ require_once __DIR__ . '/../classes/ImageKit.php';
 require_once __DIR__ . '/../classes/SocialPoster.php';
 require_once __DIR__ . '/../classes/TikTok.php';
 require_once __DIR__ . '/../classes/Pudo.php';
+require_once __DIR__ . '/../classes/GoogleAuth.php';
 require_once __DIR__ . '/../classes/ContentEngine.php';
 
 // ── One-time messages across a redirect ──────────────────────────────────
@@ -431,8 +432,21 @@ function cart_resale_value(): float
     return array_sum(array_column(cart_items(), 'line_rrp'));
 }
 
-function shipping_cost(string $method, float $subtotal, ?int $pickupPointId = null): float
+/** Delivery methods offered at checkout: Pudo only once its API key is saved, collection only with a collection point. */
+function fulfilment_methods(): array
 {
+    return array_filter(FULFILMENT_METHODS, fn($k) => match ($k) {
+        'pudo'       => Pudo::enabled(),
+        'collection' => (bool) get_pickup_points(),
+        default      => true,
+    }, ARRAY_FILTER_USE_KEY);
+}
+
+function shipping_cost(string $method, float $subtotal, ?int $pickupPointId = null, ?string $lockerCode = null): float
+{
+    if ($method === 'pudo') {
+        return Pudo::fee($lockerCode, $subtotal);
+    }
     if ($method === 'collection') {
         if (!$pickupPointId) { return 0.0; }
         $stmt = db()->prepare('SELECT fee FROM pickup_points WHERE id = :id');
