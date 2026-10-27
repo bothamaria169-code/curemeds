@@ -54,7 +54,9 @@ final class JWTHandler
             'expires'  => time() + JWT_EXPIRY,
             'path'     => '/',
             'httponly' => true,
-            'samesite' => 'Strict',
+            // Lax, not Strict: coming back from TikTok or Facebook sign-in is a
+            // cross-site redirect, and a Strict cookie would log the admin out.
+            'samesite' => 'Lax',
             'secure'   => !empty($_SERVER['HTTPS']),
         ]);
     }
@@ -91,6 +93,7 @@ final class JWTHandler
         if (!$user || !$user['is_active']) {
             return self::$resolvedUser = null;
         }
+        $_SESSION['jwt_token'] = $token;
         return self::$resolvedUser = $user;
     }
 
