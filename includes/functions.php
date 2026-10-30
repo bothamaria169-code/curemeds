@@ -15,6 +15,8 @@ require_once __DIR__ . '/../classes/NewsletterService.php';
 require_once __DIR__ . '/../classes/NewsletterTemplates.php';
 require_once __DIR__ . '/../classes/ShopAssistant.php';
 require_once __DIR__ . '/../classes/Health.php';
+require_once __DIR__ . '/../classes/OfflineSales.php';
+require_once __DIR__ . '/../classes/VideoMaker.php';
 require_once __DIR__ . '/../classes/Groq.php';
 require_once __DIR__ . '/../classes/ImageKit.php';
 require_once __DIR__ . '/../classes/SocialPoster.php';

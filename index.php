@@ -7,8 +7,9 @@ $viewer      = current_user();
 $wish        = $viewer ? wishlist_ids((int) $viewer['id']) : [];
 
 $featured    = $repo->getFeatured(8);
+// The home page leads with products: featured first, then the rest, 12 in all.
+$topProducts = $repo->getAll(['sort' => 'featured'], 1, 12)['items'];
 $bestsellers = $repo->getBestsellers(8);
-$categories  = get_categories();
 $brands      = get_brands();
 
 $testimonials = db()->query("SELECT * FROM testimonials WHERE status='published' AND quote <> '' ORDER BY sort_order, id LIMIT 4")->fetchAll();
@@ -103,6 +104,30 @@ include __DIR__ . '/includes/header.php';
   </div>
 </section>
 
+<!-- ── Products first ───────────────────────────────────────────────── -->
+<section class="section section--tight" id="products">
+  <div class="container">
+    <div class="section__head d-flex flex-wrap justify-content-between align-items-end gap-3">
+      <div>
+        <span class="eyebrow">Our products</span>
+        <h2>Shop health products</h2>
+        <p>Tap <b>Enquire</b> on any product and your WhatsApp message is written for you.</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="<?= SITE_URL ?>/categories.php" class="btn-fc btn-fc--ghost"><i class="fa-solid fa-layer-group"></i> Shop by need</a>
+        <a href="<?= SITE_URL ?>/shop.php" class="btn-fc">All <?= $productCount ?> products <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="grid-products">
+      <?php foreach ($topProducts as $product):
+        $in_wishlist = in_array((int) $product['id'], $wish, true);
+        include __DIR__ . '/includes/product-card.php';
+      endforeach; ?>
+    </div>
+  </div>
+</section>
+
 <!-- ── Trust strip ──────────────────────────────────────────────────── -->
 <section class="trust">
   <div class="container trust__grid">
@@ -110,57 +135,6 @@ include __DIR__ . '/includes/header.php';
     <div class="trust__item"><i class="fa-solid fa-bell"></i><span><b>Dose reminders</b><span>Emailed at every dose time</span></span></div>
     <div class="trust__item"><i class="fa-solid fa-truck-fast"></i><span><b>Courier delivery</b><span>2–4 working days, nationwide</span></span></div>
     <div class="trust__item"><i class="fa-solid fa-user-shield"></i><span><b>Private &amp; POPIA-compliant</b><span>Your health records stay yours</span></span></div>
-  </div>
-</section>
-
-<!-- ── Categories ───────────────────────────────────────────────────── -->
-<section class="section">
-  <div class="container">
-    <div class="section__head d-flex flex-wrap justify-content-between align-items-end gap-3">
-      <div>
-        <span class="eyebrow">Shop by need</span>
-        <h2>What are you looking after?</h2>
-        <p>Start with what matters to you. Every product shows its price, pack size and how to take it.</p>
-      </div>
-      <a href="<?= SITE_URL ?>/shop.php" class="btn-fc btn-fc--ghost">All products <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-
-    <div class="row g-3">
-      <?php foreach ($categories as $c): ?>
-      <div class="col-lg-3 col-md-4 col-sm-6" data-reveal>
-        <a class="cat-tile cat-tile--photo" href="<?= SITE_URL ?>/shop.php?category=<?= e($c['slug']) ?>">
-          <?php if (!empty($c['image'])): ?>
-            <img class="cat-tile__img" src="<?= e(product_image($c['image'])) ?>" alt="" loading="lazy">
-          <?php endif; ?>
-          <i class="fa-solid <?= e($c['icon'] ?: 'fa-tag') ?>"></i>
-          <b><?= e($c['name']) ?></b>
-          <span><?= e($c['blurb'] ?? '') ?></span>
-          <span class="count"><?= (int) $c['product_count'] ?> products <i class="fa-solid fa-arrow-right ms-1"></i></span>
-        </a>
-      </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-
-<!-- ── Featured ─────────────────────────────────────────────────────── -->
-<section class="section section--tight" style="background:var(--card);border-block:1px solid var(--line)">
-  <div class="container">
-    <div class="section__head d-flex flex-wrap justify-content-between align-items-end gap-3">
-      <div>
-        <span class="eyebrow">Hand-picked</span>
-        <h2>Our most asked-about products</h2>
-        <p>Tap <b>Enquire</b> on any product and your WhatsApp message is written for you.</p>
-      </div>
-      <a href="<?= SITE_URL ?>/shop.php?sort=featured" class="btn-fc btn-fc--ghost">See all <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-
-    <div class="grid-products">
-      <?php foreach ($featured as $product):
-        $in_wishlist = in_array((int) $product['id'], $wish, true);
-        include __DIR__ . '/includes/product-card.php';
-      endforeach; ?>
-    </div>
   </div>
 </section>
 

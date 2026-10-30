@@ -67,6 +67,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
             back('imagekit');
 
         // Signed upload so the browser can send the reel straight to ImageKit.
+        case 'ffmpeg_install':
+            $err = VideoMaker::install();
+            $err === '' ? flash('success', 'ffmpeg is installed: ' . e((string) VideoMaker::version()) . '. Reels and videos are now made on our own server. Press <b>Test video</b> to see one.')
+                        : flash('danger', e($err));
+            back('video');
+
+        case 'ffmpeg_path':
+            set_setting('ffmpeg_path', trim((string) ($_POST['ffmpeg_path'] ?? '')));
+            VideoMaker::path(true) ? flash('success', 'ffmpeg found: ' . e((string) VideoMaker::version()))
+                                   : flash('danger', e(VideoMaker::$error));
+            back('video');
+
+        case 'ffmpeg_test':
+            set_time_limit(300);
+            $p = $repo->getById((int) ($_POST['product_id'] ?? 0)) ?: ($repo->getFeatured(1)[0] ?? null);
+            if (!$p) {
+                flash('danger', 'Add a product first.');
+                back('video');
+            }
+            $t = microtime(true);
+            try {
+                $url = VideoMaker::productReel($p);
+                flash('success', sprintf('Test reel made in %.0f s: <a href="%s" target="_blank" rel="noopener" class="fw-bold">open the MP4</a>. It should play in your browser — that is the file Facebook and Instagram fetch.', microtime(true) - $t, e($url)));
+            } catch (Throwable $ex) {
+                flash('danger', 'The test reel failed: ' . e($ex->getMessage()));
+            }
+            back('video');
+
         case 'ik_auth':
             $json(ImageKit::ready() ? ['ok' => true] + ImageKit::clientAuth() : ['ok' => false, 'error' => 'Set up ImageKit first.']);
 
@@ -82,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
             if (!$platforms && !$toTikTok) {
                 $json(['ok' => false, 'error' => 'Tick at least one platform.']);
             }
-            $mp4 = ImageKit::reelUrl($fileUrl);
+            $mp4 = VideoMaker::mp4($fileUrl, true);
             if (!$mp4['ok']) {
                 $json(['ok' => false, 'error' => $mp4['error']]);
             }
@@ -146,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verify_csrf((string) ($_POST['csrf_
             $video = null;
             if ($isVideo) {
                 // Reels made from photos have no sound track to convert; uploaded videos keep theirs.
-                $video = ImageKit::reelUrl($urls[0], 180, '', !empty($_POST['silent']) ? ImageKit::REEL_TR : ImageKit::VIDEO_TR);
+                $video = VideoMaker::mp4($urls[0], !empty($_POST['silent']));
                 if (!$video['ok']) {
                     $json(['ok' => false, 'error' => $video['error']]);
                 }
@@ -378,6 +406,37 @@ $extra_js = [asset('assets/js/reel-maker.js'), asset('assets/js/compose.js')];
       </form>
     </div>
 
+    <!-- Video converter (ffmpeg on our server) -->
+    <?php $ffReady = VideoMaker::ready(); $ffCanRun = VideoMaker::canRun(); ?>
+    <div class="card-fc card-fc--pad mb-3" id="video">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 style="font-size:1.1rem;margin:0"><i class="fa-solid fa-film text-leaf me-1"></i> Video converter <span class="text-muted-3 fw-normal" style="font-size:.85rem">(MP4 for Reels &amp; Facebook)</span></h2>
+        <span class="pill pill--<?= $ffReady ? 'ok' : 'warn' ?>"><?= $ffReady ? 'Ready' : 'Not installed' ?></span>
+      </div>
+      <p style="font-size:.86rem;color:var(--text-2)">Facebook and Instagram only accept MP4 video. The site makes it itself with <b>ffmpeg</b>, a free converter, so reels no longer use ImageKit credits. Files are kept 3 days for Meta to fetch, then deleted.</p>
+      <?php if ($ffReady): ?>
+        <div class="alert-fc alert-fc--success"><i class="fa-solid fa-circle-check"></i><span><?= e((string) VideoMaker::version()) ?></span></div>
+        <form method="post" class="d-flex gap-2 flex-wrap align-items-end"><?= csrf_field() ?><input type="hidden" name="action" value="ffmpeg_test">
+          <div class="field mb-0" style="flex:1;min-width:200px"><label style="font-size:.8rem">Test with</label>
+            <select class="input-fc" name="product_id"><?php foreach ($products as $tp): ?><option value="<?= (int) $tp['id'] ?>"><?= e($tp['name']) ?></option><?php endforeach; ?></select></div>
+          <button class="btn-fc btn-fc--sm"><i class="fa-solid fa-play"></i> Test video</button>
+        </form>
+      <?php elseif (!$ffCanRun): ?>
+        <div class="alert-fc alert-fc--danger"><i class="fa-solid fa-circle-exclamation"></i><span><b>This server doesn't let PHP start programs</b> (the <code>proc_open</code> function is disabled), so ffmpeg can't run.
+          In cPanel try <b>Select PHP Version → Options</b> or <b>MultiPHP INI Editor</b> and remove <code>proc_open</code> from <code>disable_functions</code>; if neither is there, ask the host's support to allow <code>proc_open</code>. Until then ImageKit converts videos (if it has credits).</span></div>
+      <?php else: ?>
+        <form method="post" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').innerHTML='Installing… about a minute';"><?= csrf_field() ?><input type="hidden" name="action" value="ffmpeg_install">
+          <button class="btn-fc"><i class="fa-solid fa-download"></i> Install ffmpeg</button>
+          <span class="field__hint d-block mt-2">One click, no SSH needed: downloads ffmpeg 6.1 (about 29 MB) into the site's private <code>bin</code> folder, checks it is the genuine file, and test-runs it.</span>
+        </form>
+      <?php endif; ?>
+      <details class="mt-3" style="font-size:.84rem"><summary class="text-muted-2">ffmpeg is somewhere else?</summary>
+        <form method="post" class="d-flex gap-2 mt-2"><?= csrf_field() ?><input type="hidden" name="action" value="ffmpeg_path">
+          <input class="input-fc" name="ffmpeg_path" value="<?= e((string) get_setting('ffmpeg_path', '')) ?>" placeholder="/home/curemedsco/bin/ffmpeg" spellcheck="false">
+          <button class="btn-fc btn-fc--ghost btn-fc--sm">Save path</button></form>
+      </details>
+    </div>
+
     <!-- ImageKit -->
     <form method="post" class="card-fc card-fc--pad mb-3" id="imagekit">
       <?= csrf_field() ?><input type="hidden" name="action" value="imagekit">
@@ -399,7 +458,7 @@ $extra_js = [asset('assets/js/reel-maker.js'), asset('assets/js/compose.js')];
           <input class="input-fc" name="imagekit_private_key" value="<?= e($mask($ik['private_key'])) ?>" placeholder="private_…" autocomplete="off" spellcheck="false"></div>
       </div>
       <button class="btn-fc btn-fc--sm">Save &amp; test</button>
-      <p class="field__hint mt-3 mb-0">With ImageKit on, every photo posted to Facebook and Instagram is copied to ImageKit and sent as a 1080 × 1350 JPEG, and reels are turned into the MP4 that Meta accepts.</p>
+      <p class="field__hint mt-3 mb-0">With ImageKit on, every photo posted to Facebook and Instagram is copied to ImageKit and sent as a 1080 × 1350 JPEG, and — only when the video converter above isn't installed — reels are turned into MP4 here.</p>
     </form>
 
     <!-- TikTok -->

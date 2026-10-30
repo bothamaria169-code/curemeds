@@ -89,7 +89,8 @@ $announcement   = get_setting('announcement', '');
         </div>
       </div>
 
-      <a href="<?= SITE_URL ?>/price-list.php" class="<?= $active($current === 'price-list') ?>">Price list</a>
+      <a href="<?= SITE_URL ?>/categories.php" class="<?= $active($current === 'categories') ?>">Shop by need</a>
+    <a href="<?= SITE_URL ?>/price-list.php" class="<?= $active($current === 'price-list') ?>">Price list</a>
       <a href="<?= SITE_URL ?>/dashboards/customer/index.php" class="<?= $active($inDir('customer')) ?>">Patient portal</a>
       <a href="<?= SITE_URL ?>/modules/blog/index.php" class="<?= $active($inDir('blog')) ?>">Learn</a>
       <a href="<?= SITE_URL ?>/about.php"      class="<?= $active($current === 'about') ?>">About</a>
@@ -169,6 +170,7 @@ $announcement   = get_setting('announcement', '');
   <nav aria-label="Mobile">
     <a href="<?= SITE_URL ?>/index.php"      class="<?= $active($current === 'index' && !$inDir('dashboards')) ?>">Home</a>
     <a href="<?= SITE_URL ?>/shop.php"       class="<?= $active($current === 'shop') ?>">Shop all</a>
+    <a href="<?= SITE_URL ?>/categories.php" class="<?= $active($current === 'categories') ?>">Shop by need</a>
     <a href="<?= SITE_URL ?>/price-list.php" class="<?= $active($current === 'price-list') ?>">Price list</a>
     <a href="<?= SITE_URL ?>/dashboards/customer/index.php" class="<?= $active($inDir('customer')) ?>">Patient portal</a>
     <a href="<?= SITE_URL ?>/cart.php"       class="<?= $active($current === 'cart') ?>">Cart</a>

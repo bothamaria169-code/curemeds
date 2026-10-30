@@ -14,6 +14,7 @@ $brands     = get_brands();
 $statics = [
     ['', '1.0', 'daily'],
     ['/shop.php', '0.9', 'daily'],
+    ['/categories.php', '0.8', 'weekly'],
     ['/price-list.php', '0.9', 'daily'],
     ['/about.php', '0.6', 'monthly'],
     ['/faq.php', '0.6', 'monthly'],

@@ -42,6 +42,7 @@ try {
 }
 
 try {
+    VideoMaker::cleanup(3);
     $social = SocialPoster::runDaily();
     echo 'social: ' . json_encode($social) . "\n";
 } catch (Throwable $e) {

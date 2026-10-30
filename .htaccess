@@ -28,7 +28,7 @@ DirectoryIndex index.php index.html
 
 # Config and class sources are includes, never entry points. scripts/cron.php
 # is the one exception: a URL cron calls it, and it refuses anyone without the key.
-RedirectMatch 404 ^/(config|classes|database|lib|includes|source-screenshots)/.*$
+RedirectMatch 404 ^/(config|classes|database|lib|includes|source-screenshots|bin)/.*$
 RedirectMatch 404 ^/scripts/(?!cron\.php$).*$
 # Git and deploy files, in case the repository folder is ever served directly.
 RedirectMatch 404 /\.(git|github|cpanel\.yml|gitignore|claude)(/.*)?$

@@ -569,4 +569,38 @@ CREATE TABLE IF NOT EXISTS `social_posts` (
   KEY `idx_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ── offline_sales: sold outside the website (counter, events, cash/card) ──
+CREATE TABLE IF NOT EXISTS `offline_sales` (
+  `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `sold_on`        DATE NOT NULL,
+  `customer_name`  VARCHAR(120) DEFAULT NULL,
+  `customer_phone` VARCHAR(20)  DEFAULT NULL,
+  `user_id`        INT UNSIGNED DEFAULT NULL,
+  `payment_method` VARCHAR(20)  NOT NULL DEFAULT 'cash',
+  `channel`        VARCHAR(20)  NOT NULL DEFAULT 'counter',
+  `subtotal`       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `discount`       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `total`          DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `notes`          VARCHAR(1000) DEFAULT NULL,
+  `created_by`     INT UNSIGNED DEFAULT NULL,
+  `created_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_sold_on` (`sold_on`),
+  KEY `idx_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `offline_sale_items` (
+  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `sale_id`    INT UNSIGNED NOT NULL,
+  `product_id` INT UNSIGNED DEFAULT NULL,
+  `name`       VARCHAR(220) NOT NULL,
+  `pack_size`  VARCHAR(60) DEFAULT NULL,
+  `qty`        INT NOT NULL DEFAULT 1,
+  `unit_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`id`),
+  KEY `idx_sale` (`sale_id`),
+  KEY `idx_product` (`product_id`),
+  CONSTRAINT `fk_osi_sale` FOREIGN KEY (`sale_id`) REFERENCES `offline_sales` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

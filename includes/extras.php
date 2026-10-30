@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   - the weekly product newsletter
  */
 
-const CUREMEDS_SCHEMA_VERSION = 4;
+const CUREMEDS_SCHEMA_VERSION = 5;
 
 function curemeds_migrate(): void
 {
@@ -172,9 +172,43 @@ function curemeds_migrate(): void
             $addCol('blogs', 'source_name', 'VARCHAR(120) DEFAULT NULL');
             $addCol('blogs', 'image_credit', 'VARCHAR(400) DEFAULT NULL');
         }
+        if ($current < 5) {
+            // Offline sales (classes/OfflineSales.php, Admin → Offline sales).
+            $table("CREATE TABLE IF NOT EXISTS `offline_sales` (
+                  `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `sold_on`        DATE NOT NULL,
+                  `customer_name`  VARCHAR(120) DEFAULT NULL,
+                  `customer_phone` VARCHAR(20)  DEFAULT NULL,
+                  `user_id`        INT UNSIGNED DEFAULT NULL,
+                  `payment_method` VARCHAR(20)  NOT NULL DEFAULT 'cash',
+                  `channel`        VARCHAR(20)  NOT NULL DEFAULT 'counter',
+                  `subtotal`       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                  `discount`       DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                  `total`          DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                  `notes`          VARCHAR(1000) DEFAULT NULL,
+                  `created_by`     INT UNSIGNED DEFAULT NULL,
+                  `created_at`     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  KEY `idx_sold_on` (`sold_on`),
+                  KEY `idx_user` (`user_id`)
+                )");
+            $table("CREATE TABLE IF NOT EXISTS `offline_sale_items` (
+                  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `sale_id`    INT UNSIGNED NOT NULL,
+                  `product_id` INT UNSIGNED DEFAULT NULL,
+                  `name`       VARCHAR(220) NOT NULL,
+                  `pack_size`  VARCHAR(60) DEFAULT NULL,
+                  `qty`        INT NOT NULL DEFAULT 1,
+                  `unit_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                  PRIMARY KEY (`id`),
+                  KEY `idx_sale` (`sale_id`),
+                  KEY `idx_product` (`product_id`),
+                  CONSTRAINT `fk_osi_sale` FOREIGN KEY (`sale_id`) REFERENCES `offline_sales` (`id`) ON DELETE CASCADE
+                )");
+        }
     } catch (Throwable $e) {
         $ok = false;
-        error_log('CureMeds upgrade step 4 failed: ' . $e->getMessage());
+        error_log('CureMeds upgrade failed: ' . $e->getMessage());
     }
     // Only a clean run is recorded; otherwise every step (they are all safe to repeat) runs again next time.
     if ($ok) {

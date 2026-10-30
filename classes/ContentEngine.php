@@ -7,7 +7,8 @@ declare(strict_types=1);
  *  - articles: Groq writes a health article around two or three catalogue
  *    products, it is published on the blog with those products listed under
  *    it, and shared to the Facebook Page (link post) and Instagram (photo).
- *  - reels: product reels are built entirely on ImageKit (photo and text
+ *  - reels: product reels are drawn and encoded with ffmpeg on our server
+ *    (classes/VideoMaker.php); without ffmpeg they are built on ImageKit (photo and text
  *    layers on assets/video/reel-base.mp4) and posted as Instagram and
  *    Facebook Page reels, spread evenly through the posting hours.
  *
@@ -242,11 +243,21 @@ final class ContentEngine
         return implode(':', $L);
     }
 
-    /** The finished reel URL for a product (layers on the base video, encoded to MP4). */
+    /**
+     * The finished reel URL for a product: drawn and encoded with ffmpeg on our own
+     * server (VideoMaker) when it is installed, otherwise ImageKit layers on the base video.
+     */
     public static function reelUrl(array $p): array
     {
+        if (VideoMaker::ready()) {
+            try {
+                return ['ok' => true, 'url' => VideoMaker::productReel($p), 'error' => ''];
+            } catch (Throwable $e) {
+                return ['ok' => false, 'url' => '', 'error' => $e->getMessage()];
+            }
+        }
         if (!ImageKit::ready()) {
-            return ['ok' => false, 'url' => '', 'error' => 'ImageKit is not set up.'];
+            return ['ok' => false, 'url' => '', 'error' => 'No video converter: install ffmpeg in AI & social media → Video converter.'];
         }
         $base   = ImageKit::hosted(self::BASE_VIDEO);
         $layers = self::reelLayers($p);

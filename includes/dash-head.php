@@ -30,6 +30,7 @@ $nav = match ($dash_role) {
             ['setup',     'setup.php',     'fa-list-check',      'Setup checklist', $stats['setup_left'] ?? 0],
             ['orders',    'orders.php',    'fa-receipt',         'Orders', $stats['orders_pending'] ?? 0],
             ['enquiries', 'enquiries.php', 'fa-brands fa-whatsapp', 'Enquiries', $stats['enquiries_new'] ?? 0],
+            ['offline-sales', 'offline-sales.php', 'fa-cash-register', 'Offline sales', null],
             ['purchases', 'purchases.php', 'fa-bolt',          'Live ticker', null],
         ],
         'Patients' => [

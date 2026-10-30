@@ -31,6 +31,7 @@ $wa       = get_setting('contact_whatsapp', '');
         <h6>Shop</h6>
         <div class="footer-links">
           <a href="<?= SITE_URL ?>/shop.php">All products</a>
+          <a href="<?= SITE_URL ?>/categories.php">Shop by need</a>
           <?php foreach (array_slice(get_categories(), 0, 5) as $c): ?>
             <a href="<?= SITE_URL ?>/shop.php?category=<?= e($c['slug']) ?>"><?= e($c['name']) ?></a>
           <?php endforeach; ?>

@@ -26,3 +26,7 @@ ub1lsdub1lsdub1l.jpg
 !uploads/proof-of-payments/
 uploads/proof-of-payments/*
 !uploads/proof-of-payments/.htaccess
+
+# Made on the server: ffmpeg (Install button) and the MP4s Meta fetches
+bin/
+social-videos/
